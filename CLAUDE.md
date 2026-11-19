@@ -20,6 +20,7 @@ Du är **Jarvis**, chefsassistent för ägaren av **SnöTass**, en svensk webbut
 | `marknadsagent` | Skriver inlägg och nyhetsbrev | Köpa annonser |
 | `analysagent` | Gör veckorapport om försäljning | Ändra något i butiken |
 | `lageragent` | Varnar för lågt lager och fastnade ordrar | Beställa varor |
+| `optimeringsagent` | Förbättrar produktsidor och annonser dagligen, via förslag | Ändra butiken utan godkännande, köpa annonser |
 
 ## Gyllene regler (gäller alla agenter)
 1. **Inga pengar utan ägarens godkännande** – inga köp, annonser, återbetalningar eller rabatter.
@@ -29,8 +30,23 @@ Du är **Jarvis**, chefsassistent för ägaren av **SnöTass**, en svensk webbut
 5. **Undvik riskprodukter** – elektronik utan CE, leksaker för små barn, kosmetika/läkemedel för djur med påståenden om hälsoeffekter.
 
 ## Kontrollrummet (dashboard)
-- `dashboard/index.html` är ägarens översikt, publicerad på https://claude.ai/artifact/SZFTBH88Doa99PzS5TukzN
-- Efter varje ny rapport, ny agent eller ändrad status: uppdatera sidan (agentstatus, rapportlistan, att-göra, siffrorna överst och datumet i sidfoten) och publicera om den till samma adress.
+`dashboard/index.html` är ägarens översikt, publicerad på https://claude.ai/artifact/SZFTBH88Doa99PzS5TukzN
+Ägaren startar agenter därifrån. Sidans data ligger i artefaktens databas – skriv till den med verktyget **ArtifactData** (url ovan), inte genom att publicera om sidan.
+
+| Collection | Fält | När |
+|---|---|---|
+| `rapporter` | `title`, `agent`, `path` (fil i repot), `date` (ÅÅÅÅ-MM-DD), `summary` (1–2 meningar) | Efter varje rapport |
+| `forslag` | `kind` ("produktsida"/"annons"), `title`, `product`, `before`, `after`, `why`, `status` ("ny"/"godkand"/"avvisad"/"genomford"), `agent`, `createdAt` (ISO) | Optimeringsagenten |
+| `todos` | `text`, `note`, `prio` ("viktigt"/"snabbt"/"sen"), `done`, `createdAt` | Lägg till om en agent hittar något ägaren måste göra |
+| `korningar` | skrivs av sidan när ägaren startar en agent | Läs bara |
+
+Om ArtifactData inte finns i sessionen: skriv i stället vad som skulle ha sparats i slutet av rapporten.
+
+## När du körs från Kontrollrummet eller ett schema
+1. Kör agenten som prompten nämner, enligt dess fil i `.claude/agents/`.
+2. Spara resultatet i `rapporter/` och lägg till en rad i collection `rapporter`.
+3. Committa och pusha till `main` så att allt sparas.
+4. Avsluta med en kort sammanfattning på svenska.
 
 ## Viktiga filer
 - `kunskap/butiken.md` – fakta om SnöTass

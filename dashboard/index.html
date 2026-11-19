@@ -3,42 +3,38 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: kontrollrum – sammanfattning överst, agenter grupperade per team, sedan rapporter och att-göra i två kolumner */
+/* Layout: kontrollrum – siffror överst, förslag att godkänna, agenter per team med Kör-knapp, sedan att-göra och rapporter i två kolumner */
 :root {
-  --bg: #F6F9FC;
-  --panel: #FFFFFF;
-  --line: #D9E3EE;
-  --fg: #0F2233;
-  --muted: #5A6B7D;
-  --accent: #2E6A9E;
-  --accent-soft: #E3ECF5;
-  --ok: #2F7D5B; --ok-bg: #E2F2EA;
-  --warn: #9A6400; --warn-bg: #FBF0D9;
-  --wait: #5A6B7D; --wait-bg: #EAEFF4;
+  --bg: #F6F9FC; --panel: #FFFFFF; --line: #D9E3EE; --fg: #0F2233; --muted: #5A6B7D;
+  --accent: #2E6A9E; --accent-fg: #FFFFFF; --accent-soft: #E3ECF5;
+  --ok: #2F7D5B; --ok-bg: #E2F2EA; --warn: #9A6400; --warn-bg: #FBF0D9; --wait: #5A6B7D; --wait-bg: #EAEFF4; --bad: #A33B3B; --bad-bg: #F8E4E4;
   --f-display: "DM Serif Display", Georgia, serif;
   --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0B1722; --panel: #112231; --line: #1F3447; --fg: #E6EEF6; --muted: #93A6B8;
-  --accent: #7FB2DE; --accent-soft: #17304A;
-  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B;
+  --accent: #7FB2DE; --accent-fg: #0B1722; --accent-soft: #17304A;
+  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B; --bad: #F09A9A; --bad-bg: #3A1717;
   color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0B1722; --panel: #112231; --line: #1F3447; --fg: #E6EEF6; --muted: #93A6B8;
-  --accent: #7FB2DE; --accent-soft: #17304A;
-  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B;
+  --accent: #7FB2DE; --accent-fg: #0B1722; --accent-soft: #17304A;
+  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B; --bad: #F09A9A; --bad-bg: #3A1717;
   color-scheme: dark }
 
 body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
 .wrap { max-width: 1120px; margin: 0 auto; padding-block: 32px 64px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: grid; gap: 40px; }
-
 header { display: grid; gap: 6px; }
 .kicker { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
 h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(34px, 6vw, 52px); line-height: 1.05; margin: 0; text-wrap: balance; }
-.lede { color: var(--muted); max-width: 62ch; margin: 4px 0 0; }
+.lede { color: var(--muted); max-width: 64ch; margin: 4px 0 0; }
+h2 { font-family: var(--f-display); font-weight: 400; font-size: 26px; margin: 0; }
+.section { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.sec-head p { margin: 0; color: var(--muted); font-size: 13.5px; }
 
 .stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
 .stat { padding: 16px 18px; display: grid; gap: 2px; }
@@ -46,153 +42,385 @@ h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(34px, 6vw
 .stat b { font-family: var(--f-display); font-weight: 400; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
 .stat span { color: var(--muted); font-size: 13px; }
 
-h2 { font-family: var(--f-display); font-weight: 400; font-size: 26px; margin: 0; }
-.section { display: grid; gap: 16px; }
 .team { display: grid; gap: 12px; }
+.team + .team { margin-top: 12px; }
 .team-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .team-head h3 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .team-head p { margin: 0; color: var(--muted); font-size: 13px; }
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
 
-.agent { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.agent { padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
 .agent-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .agent h4 { margin: 0; font-size: 17px; font-weight: 600; }
-.agent .file { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); }
+.file { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); }
 .does { margin: 0; }
-.rules { display: grid; gap: 6px; font-size: 13.5px; }
-.rule { display: grid; grid-template-columns: 52px 1fr; gap: 8px; }
+.rule { display: grid; grid-template-columns: 52px 1fr; gap: 8px; font-size: 13.5px; margin: 0; }
 .rule dt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
 .rule dd { margin: 0; }
-.meta { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; }
-.cmd { display: flex; gap: 6px; align-items: center; min-width: 0; }
-.cmd code { flex: 1; min-width: 0; font-family: var(--f-mono); font-size: 12px; background: var(--accent-soft); color: var(--fg); padding: 7px 9px; border-radius: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-button.copy { font: 500 12px var(--f-body); color: var(--accent); background: transparent; border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
-button.copy:hover { border-color: var(--accent); }
-button.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.run { display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.run textarea { width: 100%; box-sizing: border-box; resize: vertical; min-height: 38px; font: 13.5px/1.4 var(--f-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.run-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.last { font-size: 12.5px; color: var(--muted); min-width: 0; }
+.last a, .msg a { color: var(--accent); }
+.msg { font-size: 13px; }
+.msg.err { color: var(--bad); }
+.msg.ok { color: var(--ok); }
+
+button { font: 500 13px var(--f-body); border-radius: 8px; padding: 7px 12px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--fg); }
+button:hover { border-color: var(--accent); }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button.ghost { border-color: transparent; color: var(--muted); padding: 4px 8px; }
+button:disabled { opacity: .55; cursor: default; }
 
 .pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 .pill.ok { color: var(--ok); background: var(--ok-bg); }
 .pill.warn { color: var(--warn); background: var(--warn-bg); }
 .pill.wait { color: var(--wait); background: var(--wait-bg); }
+.pill.info { color: var(--accent); background: var(--accent-soft); }
 
-.two { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 24px; align-items: start; }
-.list { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
-.row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 13px 16px; }
+.props { display: grid; gap: 12px; }
+.prop { padding: 16px; display: grid; gap: 10px; }
+.prop-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.prop h4 { margin: 0; font-size: 16px; font-weight: 600; }
+.ba { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
+.ba div { background: var(--bg); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; white-space: pre-wrap; min-width: 0; overflow-wrap: anywhere; }
+.ba small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.why { margin: 0; font-size: 13.5px; color: var(--muted); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.empty { padding: 18px 16px; color: var(--muted); font-size: 14px; }
+
+.two { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 28px; align-items: start; }
+.row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: start; padding: 13px 16px; }
 .row + .row { border-top: 1px solid var(--line); }
-.row .date { font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.row .title { min-width: 0; }
 .row .title small { display: block; color: var(--muted); font-size: 12.5px; }
-.check { width: 16px; height: 16px; border: 1.5px solid var(--muted); border-radius: 4px; }
+.row.done .title > span { text-decoration: line-through; color: var(--muted); }
+.row input[type=checkbox] { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--accent); }
+.row-side { display: flex; gap: 6px; align-items: center; }
+.help { grid-column: 2 / -1; background: var(--bg); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; white-space: pre-wrap; }
+.add { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.add input, .add select { font: 14px var(--f-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+.add input { flex: 1; min-width: 160px; }
+.date { font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
 .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; padding: 16px; margin: 0; font-size: 14px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; }
 .missing { color: var(--warn); font-weight: 500; }
+.notice { font-size: 13px; color: var(--muted); padding: 10px 14px; border: 1px dashed var(--line); border-radius: 10px; }
 footer { color: var(--muted); font-size: 12.5px; }
 footer code { font-family: var(--f-mono); }
 
 @media (max-width: 860px) { .grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .two { grid-template-columns: minmax(0,1fr); } }
 @media (max-width: 560px) {
-  .grid { grid-template-columns: minmax(0,1fr); }
+  .grid, .ba { grid-template-columns: minmax(0,1fr); }
   .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
   .stat:nth-child(3) { border-left: 0; }
   .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
 }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
 <div class="wrap">
   <header>
     <div class="kicker">Jarvis · SnöTass</div>
     <h1>Kontrollrummet</h1>
-    <p class="lede">Alla agenter i SnöTass AI-team, vad de gör, vad de inte får göra och vad som behövs härnäst. Kopiera ett kommando och klistra in det i en Claude Code-session med repot <b>jarvis</b>.</p>
+    <p class="lede">Starta agenter med ett klick, godkänn deras förslag och håll koll på det du behöver göra. Varje körning blir en egen Claude-session som sparar resultatet i repot jarvis.</p>
   </header>
 
   <div class="stats" aria-label="Sammanfattning">
-    <div class="stat"><b>8</b><span>agenter i teamet</span></div>
-    <div class="stat"><b>5</b><span>redo att köras</span></div>
-    <div class="stat"><b>1</b><span>rapport sparad</span></div>
-    <div class="stat"><b>5</b><span>saker att göra</span></div>
+    <div class="stat"><b id="s-agents">9</b><span>agenter i teamet</span></div>
+    <div class="stat"><b id="s-props">–</b><span>förslag att granska</span></div>
+    <div class="stat"><b id="s-todos">–</b><span>saker kvar att göra</span></div>
+    <div class="stat"><b id="s-reports">–</b><span>rapporter</span></div>
   </div>
 
+  <div id="cap-notice" class="notice" hidden></div>
+
+  <section class="section" aria-labelledby="h-props">
+    <div class="sec-head"><h2 id="h-props">Förslag att godkänna</h2><p>Optimeringsagenten lägger förslag här varje morgon. Inget ändras i butiken förrän du godkänner.</p></div>
+    <div id="props" class="props"><div class="card empty">Hämtar förslag …</div></div>
+  </section>
+
   <section class="section" aria-labelledby="h-agents">
-    <h2 id="h-agents">Agenterna</h2>
+    <div class="sec-head"><h2 id="h-agents">Agenterna</h2><p>Skriv gärna en instruktion och tryck Kör. Sessionen arbetar i bakgrunden i några minuter.</p></div>
     <div id="teams"></div>
   </section>
 
   <div class="two">
     <section class="section" aria-labelledby="h-todo">
-      <h2 id="h-todo">Att göra</h2>
-      <div class="list">
-        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Spara SnöTass på ditt Shopify-konto<small>Annars kan butiken försvinna</small></span><span class="pill warn">Viktigt</span></div>
-        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Fyll i leveranstid, frakt och kontaktmejl<small>kunskap/butiken.md – kundtjänst behöver det</small></span><span class="pill warn">Viktigt</span></div>
-        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Kontrollera att repot jarvis är privat<small>GitHub → repot → Settings</small></span><span class="pill wait">Snabbt</span></div>
-        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Installera Shopify Collective<small>För att hämta in riktiga produkter</small></span><span class="pill wait">Sen</span></div>
-        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Beställ varuprov på en bädd<small>Innan den säljs</small></span><span class="pill wait">Sen</span></div>
+      <div class="sec-head"><h2 id="h-todo">Att göra</h2><p>Tryck Hjälp för en steg-för-steg-guide.</p></div>
+      <div class="card">
+        <div id="todos"><div class="empty">Hämtar listan …</div></div>
+        <form class="add" id="add-todo">
+          <input id="todo-text" aria-label="Ny uppgift" placeholder="Ny uppgift, t.ex. Fota tassvaxet" autocomplete="off">
+          <select id="todo-prio" aria-label="Prioritet"><option value="viktigt">Viktigt</option><option value="snabbt" selected>Snabbt</option><option value="sen">Sen</option></select>
+          <button type="submit" class="primary">Lägg till</button>
+        </form>
       </div>
     </section>
 
-    <section class="section" aria-labelledby="h-reports">
-      <h2 id="h-reports">Rapporter</h2>
-      <div class="list">
-        <div class="row"><span class="date">2026-11-18</span><span class="title">Trendrapport – husdjur vinter<small>Trendspanaren · rapporter/2026-11-18-trender.md</small></span><span class="pill ok">Klar</span></div>
-      </div>
-      <h2 id="h-shop">Butiken</h2>
-      <div class="list">
-        <dl class="facts">
-          <dt>Namn</dt><dd>SnöTass</dd>
-          <dt>Nisch</dt><dd>Vinterprodukter för hund och katt</dd>
-          <dt>Produkter</dt><dd>3 (tassvax, vinterkoja, hundtäcke)</dd>
-          <dt>Domän</dt><dd>snowtass.com – ej köpt</dd>
-          <dt>Leverantörer</dt><dd>5 kandidater, 0 godkända</dd>
-          <dt>Villkor</dt><dd class="missing">Saknas – fyll i</dd>
-        </dl>
-      </div>
-    </section>
+    <div class="section">
+      <section class="section" aria-labelledby="h-reports">
+        <h2 id="h-reports">Rapporter</h2>
+        <div class="card" id="reports"><div class="empty">Hämtar rapporter …</div></div>
+      </section>
+      <section class="section" aria-labelledby="h-shop">
+        <h2 id="h-shop">Butiken</h2>
+        <div class="card">
+          <dl class="facts">
+            <dt>Namn</dt><dd>SnöTass</dd>
+            <dt>Nisch</dt><dd>Vinterprodukter för hund och katt</dd>
+            <dt>Produkter</dt><dd>3 (tassvax, vinterkoja, hundtäcke)</dd>
+            <dt>Domän</dt><dd>snowtass.com – ej köpt</dd>
+            <dt>Leverantörer</dt><dd>5 kandidater, 0 godkända</dd>
+            <dt>Villkor</dt><dd class="missing">Saknas – fyll i</dd>
+          </dl>
+        </div>
+      </section>
+    </div>
   </div>
 
-  <footer>Uppdaterad 2026-11-19. Sidan uppdateras inte av sig själv – be Jarvis "uppdatera kontrollrummet" efter nya rapporter. Källa: <code>hundar432-maker/jarvis</code></footer>
+  <footer>Data från <code>hundar432-maker/jarvis</code> och Kontrollrummets databas. Optimeringsagenten körs varje morgon och trendspanaren varje måndag.</footer>
 </div>
 
 <script>
-const teams = [
+const SRV = "Claude Code Remote";
+const REPO = "https://github.com/hundar432-maker/jarvis";
+const ENV = "env_012G9cfKf9YgSqY6jjZ9ZHv5";
+
+const TEAMS = [
   { name: "Inköp", desc: "Hittar produkter och leverantörer", agents: [
-    { name: "Trendspanaren", file: "trendspanare", status: ["ok","Redo"], does: "Hittar trendande husdjursprodukter och betygsätter dem 1–10.", not: "Köpa något eller kontakta någon.", last: "Senast körd 2026-11-18", cmd: "Jarvis, kör trendspanaren" },
-    { name: "Leverantörsjämföraren", file: "leverantorsjamforare", status: ["ok","Redo"], does: "Jämför leverantörer och räknar ut den verkliga totalkostnaden.", not: "Beställa varor.", last: "Inte körd än", cmd: "Jarvis, jämför leverantörer för hundtäcken" },
-    { name: "Kontaktagenten", file: "kontaktagent", status: ["ok","Redo"], does: "Skriver mejlutkast till leverantörer: prov, priser, påminnelser.", not: "Skicka mejl själv.", last: "Inte körd än", cmd: "Jarvis, skriv mejl till leverantörerna" }
+    { name: "Trendspanaren", file: "trendspanare", status: ["info","Varje måndag"], does: "Hittar trendande husdjursprodukter och betygsätter dem 1–10.", not: "Köpa något eller kontakta någon.", ph: "Valfritt: t.ex. fokusera på katter" },
+    { name: "Leverantörsjämföraren", file: "leverantorsjamforare", status: ["ok","Redo"], does: "Jämför leverantörer och räknar ut den verkliga totalkostnaden.", not: "Beställa varor.", ph: "Vilken produkt? t.ex. hundtäcken" },
+    { name: "Kontaktagenten", file: "kontaktagent", status: ["ok","Redo"], does: "Skriver mejlutkast till leverantörer: prov, priser, påminnelser.", not: "Skicka mejl själv.", ph: "Valfritt: vilken leverantör?" }
   ]},
   { name: "Butik", desc: "Möter kunderna", agents: [
-    { name: "Produktagenten", file: "produktagent", status: ["ok","Redo"], does: "Skriver produkttexter, titlar och SEO.", not: "Publicera utan ditt godkännande.", last: "Inte körd än", cmd: "Jarvis, skriv en produkttext för tassvaxet" },
-    { name: "Kundtjänst", file: "kundtjanst", status: ["warn","Behöver info"], does: "Skriver svarsutkast på kundmejl.", not: "Lova återbetalning eller rabatt.", last: "Väntar på leveransvillkor i butiken.md", cmd: "Jarvis, svara på det här kundmejlet: " },
-    { name: "Marknadsagenten", file: "marknadsagent", status: ["ok","Redo"], does: "Gör veckoplan för sociala medier och nyhetsbrev.", not: "Köpa annonser eller publicera.", last: "Inte körd än", cmd: "Jarvis, gör veckans innehållsplan" }
+    { name: "Optimeringsagenten", file: "optimeringsagent", status: ["info","Varje morgon"], does: "Förbättrar produktsidor och annonser för högre försäljning, via förslag du godkänner.", not: "Ändra butiken utan godkännande eller köpa annonser.", ph: "Valfritt: t.ex. fokusera på tassvaxet" },
+    { name: "Produktagenten", file: "produktagent", status: ["ok","Redo"], does: "Skriver produkttexter, titlar och SEO.", not: "Publicera utan ditt godkännande.", ph: "Vilken produkt?" },
+    { name: "Marknadsagenten", file: "marknadsagent", status: ["ok","Redo"], does: "Gör veckoplan för sociala medier och nyhetsbrev.", not: "Köpa annonser eller publicera.", ph: "Valfritt: t.ex. kampanj inför jul" },
+    { name: "Kundtjänst", file: "kundtjanst", status: ["warn","Behöver info"], does: "Skriver svarsutkast på kundmejl.", not: "Lova återbetalning eller rabatt.", ph: "Klistra in kundens mejl" }
   ]},
   { name: "Drift", desc: "Håller koll på siffrorna", agents: [
-    { name: "Analysagenten", file: "analysagent", status: ["wait","Väntar på butik"], does: "Gör en veckorapport om försäljning och bästsäljare.", not: "Ändra något i butiken.", last: "Behöver riktiga försäljningar först", cmd: "Jarvis, gör veckorapporten" },
-    { name: "Lageragenten", file: "lageragent", status: ["wait","Väntar på butik"], does: "Varnar för lågt lager och ordrar som fastnat.", not: "Beställa varor.", last: "Behöver sparad butik och lager", cmd: "Jarvis, kolla lager och ordrar" }
+    { name: "Analysagenten", file: "analysagent", status: ["wait","Väntar på butik"], does: "Gör en veckorapport om försäljning och bästsäljare.", not: "Ändra något i butiken.", ph: "Valfritt" },
+    { name: "Lageragenten", file: "lageragent", status: ["wait","Väntar på butik"], does: "Varnar för lågt lager och ordrar som fastnat.", not: "Beställa varor.", ph: "Valfritt" }
   ]}
 ];
 
-const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-document.getElementById("teams").innerHTML = teams.map(t => `
-  <div class="team">
-    <div class="team-head"><h3>${t.name}</h3><p>${t.desc}</p></div>
-    <div class="grid">${t.agents.map(a => `
-      <article class="agent">
-        <div class="agent-top">
-          <div><h4>${a.name}</h4><div class="file">.claude/agents/${a.file}.md</div></div>
-          <span class="pill ${a.status[0]}">${a.status[1]}</span>
-        </div>
-        <p class="does">${a.does}</p>
-        <dl class="rules"><div class="rule"><dt>Får ej</dt><dd>${a.not}</dd></div></dl>
-        <div class="cmd"><code title="${esc(a.cmd)}">${esc(a.cmd)}</code><button class="copy" type="button" data-cmd="${esc(a.cmd)}">Kopiera</button></div>
-        <div class="meta">${a.last}</div>
-      </article>`).join("")}
-    </div>
-  </div>`).join("");
+const state = { todos: null, forslag: null, rapporter: null, korningar: [] };
+let db = null, mcp = null, sample = null;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate = iso => { try { return new Date(iso).toLocaleDateString("sv-SE"); } catch { return ""; } };
+const sessionUrl = id => "https://claude.ai/code/" + encodeURIComponent(id);
 
+/* ---------- Agenter ---------- */
+function renderAgents() {
+  const typed = {};
+  document.querySelectorAll("#teams textarea").forEach(t => typed[t.id] = t.value);
+  const focused = document.activeElement && document.activeElement.id;
+  $("teams").innerHTML = TEAMS.map(t => `
+    <div class="team">
+      <div class="team-head"><h3>${t.name}</h3><p>${t.desc}</p></div>
+      <div class="grid">${t.agents.map(a => {
+        const last = state.korningar.find(k => k.agent === a.file);
+        const lastHtml = last ? `Senast startad ${fmtDate(last.startedAt)}${last.sessionId ? ` · <a href="${sessionUrl(last.sessionId)}" target="_blank" rel="noopener">öppna session</a>` : ""}` : "Inte startad från Kontrollrummet än";
+        return `
+        <article class="card agent">
+          <div class="agent-top">
+            <div><h4>${a.name}</h4><div class="file">.claude/agents/${a.file}.md</div></div>
+            <span class="pill ${a.status[0]}">${a.status[1]}</span>
+          </div>
+          <p class="does">${a.does}</p>
+          <dl class="rule"><dt>Får ej</dt><dd>${a.not}</dd></dl>
+          <div class="run">
+            <textarea id="in-${a.file}" rows="1" placeholder="${esc(a.ph)}" aria-label="Instruktion till ${a.name}"></textarea>
+            <div class="run-row">
+              <button class="primary" type="button" data-run="${a.file}" ${mcp ? "" : "disabled"}>Kör</button>
+              <span class="last" id="last-${a.file}">${lastHtml}</span>
+            </div>
+            <div class="msg" id="msg-${a.file}" aria-live="polite"></div>
+          </div>
+        </article>`; }).join("")}
+      </div>
+    </div>`).join("");
+  Object.entries(typed).forEach(([id, v]) => { const el = $(id); if (el) el.value = v; });
+  if (focused && typed[focused] !== undefined) $(focused)?.focus();
+}
+
+function extractSessionId(res) {
+  const p = res && (res.payload ?? res);
+  if (p && typeof p === "object") {
+    const id = p.session_id || p.id || (p.session && (p.session.id || p.session.session_id));
+    if (typeof id === "string") return id;
+  }
+  const m = JSON.stringify(p ?? "").match(/session_[A-Za-z0-9]+/);
+  return m ? m[0] : "";
+}
+
+function runError(e) {
+  switch (e && e.code) {
+    case "needs_reauth": return "Kopplingen till Claude Code har gått ut. Anslut den igen under Inställningar → Connectors.";
+    case "server_not_connected": return "Claude Code Remote är inte tillagd. Lägg till den under Inställningar → Connectors.";
+    case "not_in_manifest": case "approval_required": case "consent_required": return "Sidan behöver ditt tillstånd för att starta sessioner. Tryck Kör igen och välj Tillåt.";
+    case "blocked_by_policy": return "Din organisation tillåter inte att sidan startar sessioner.";
+    case "tool_error": return "Sessionen kunde inte startas: " + (e.message || "okänt fel");
+    case "server_unavailable": case "upstream_error": return "Oklart om sessionen startade. Titta på claude.ai/code innan du försöker igen.";
+    default: return "Något gick fel (" + (e && e.code || "okänt") + "). Försök igen om en stund.";
+  }
+}
+
+async function runAgent(file, btn) {
+  const a = TEAMS.flatMap(t => t.agents).find(x => x.file === file);
+  const input = $("in-" + file).value.trim();
+  const msg = $("msg-" + file);
+  btn.disabled = true; btn.textContent = "Startar …"; msg.className = "msg"; msg.textContent = "";
+  const prompt = `Jarvis: kör agenten ${file} (.claude/agents/${file}.md) enligt CLAUDE.md.` +
+    (input ? `\n\nInstruktion från ägaren:\n${input}` : "") +
+    `\n\nSpara resultatet i rapporter/, lägg till raden i Kontrollrummet och pusha till main. Svara på svenska.`;
+  try {
+    const res = await mcp.callTool(SRV, "create_session", { prompt, title: "Jarvis · " + a.name, source_url: REPO, environment_id: ENV, outcome_branch: "main" }, { cache: false });
+    const id = extractSessionId(res);
+    msg.className = "msg ok";
+    msg.innerHTML = "Startad! Agenten arbetar nu." + (id ? ` <a href="${sessionUrl(id)}" target="_blank" rel="noopener">Följ sessionen</a>` : " Du hittar den på claude.ai/code.");
+    $("in-" + file).value = "";
+    if (db) { try { await db.collection("korningar").add({ agent: file, name: a.name, sessionId: id, input, startedAt: new Date().toISOString() }); } catch {} }
+  } catch (e) {
+    msg.className = "msg err"; msg.textContent = runError(e);
+  } finally { btn.disabled = false; btn.textContent = "Kör"; }
+}
+
+/* ---------- Förslag ---------- */
+function renderProps() {
+  const box = $("props");
+  if (state.forslag === null) return;
+  const open = state.forslag.filter(f => f.status === "ny");
+  const decided = state.forslag.filter(f => f.status !== "ny").slice(0, 3);
+  $("s-props").textContent = open.length;
+  if (!open.length && !decided.length) { box.innerHTML = `<div class="card empty">Inga förslag än. Optimeringsagenten lämnar sina första förslag i morgon bitti, eller tryck Kör på den nedan.</div>`; return; }
+  const label = { godkand: ["ok","Godkänd"], avvisad: ["wait","Avvisad"], genomford: ["ok","Genomförd"] };
+  box.innerHTML = open.map(f => `
+    <article class="card prop">
+      <div class="prop-top"><h4>${esc(f.title)}</h4><span class="pill info">${esc(f.kind === "annons" ? "Annons" : "Produktsida")}${f.product ? " · " + esc(f.product) : ""}</span></div>
+      <div class="ba"><div><small>Nu</small>${esc(f.before || "–")}</div><div><small>Förslag</small>${esc(f.after)}</div></div>
+      ${f.why ? `<p class="why">${esc(f.why)}</p>` : ""}
+      <div class="actions"><button class="primary" data-approve="${f.id}">Godkänn</button><button data-reject="${f.id}">Avvisa</button></div>
+    </article>`).join("") +
+    (decided.length ? `<div class="card">${decided.map(f => `<div class="row"><span class="pill ${(label[f.status]||["wait",f.status])[0]}">${(label[f.status]||["wait",esc(f.status)])[1]}</span><span class="title">${esc(f.title)}</span><span></span></div>`).join("")}</div>` : "");
+}
+
+async function decide(id, status, btn) {
+  if (!db) return;
+  btn.disabled = true;
+  try { await db.doc("forslag/" + id).update({ status, decidedAt: new Date().toISOString() }); }
+  catch (e) { btn.disabled = false; btn.textContent = "Försök igen"; }
+}
+
+/* ---------- Att göra ---------- */
+const PRIO = { viktigt: ["warn","Viktigt"], snabbt: ["info","Snabbt"], sen: ["wait","Sen"] };
+const helpText = {};
+function renderTodos() {
+  const box = $("todos");
+  if (state.todos === null) return;
+  const order = { viktigt: 0, snabbt: 1, sen: 2 };
+  const list = [...state.todos].sort((a, b) => (a.done - b.done) || (order[a.prio] ?? 3) - (order[b.prio] ?? 3) || String(a.createdAt).localeCompare(String(b.createdAt)));
+  $("s-todos").textContent = state.todos.filter(t => !t.done).length;
+  if (!list.length) { box.innerHTML = `<div class="empty">Listan är tom. Lägg till din första uppgift nedan.</div>`; return; }
+  box.innerHTML = list.map(t => {
+    const p = PRIO[t.prio] || PRIO.sen;
+    return `<div class="row ${t.done ? "done" : ""}">
+      <input type="checkbox" id="chk-${t.id}" data-toggle="${t.id}" ${t.done ? "checked" : ""} aria-label="Klar: ${esc(t.text)}">
+      <label class="title" for="chk-${t.id}"><span>${esc(t.text)}</span>${t.note ? `<small>${esc(t.note)}</small>` : ""}</label>
+      <span class="row-side"><span class="pill ${p[0]}">${p[1]}</span>${sample && !t.done ? `<button class="ghost" data-help="${t.id}">Hjälp</button>` : ""}<button class="ghost" data-del="${t.id}" aria-label="Ta bort ${esc(t.text)}">✕</button></span>
+      ${helpText[t.id] ? `<div class="help" id="help-${t.id}">${esc(helpText[t.id])}</div>` : ""}
+    </div>`; }).join("");
+}
+
+async function helpWith(id) {
+  const t = state.todos.find(x => x.id === id); if (!t || !sample) return;
+  helpText[id] = "Tänker …"; renderTodos();
+  const prompt = `Du hjälper en nybörjare som driver webbutiken SnöTass (vinterprodukter för hundar och katter, Shopify, Sverige). Uppgift: "${t.text}". ${t.note ? "Mer info: " + t.note + "." : ""}
+Ge en kort, konkret steg-för-steg-guide på svenska: högst 6 numrerade steg, enkla ord, ingen inledning. Avsluta med en rad "Tid: ca X min".`;
+  try {
+    await sample(prompt, { onText: ({ text }) => { helpText[id] = text; const el = $("help-" + id); if (el) el.textContent = text; else renderTodos(); } });
+  } catch (e) {
+    helpText[id] = e && e.code === "not_granted" ? "Hjälpen kräver ditt tillstånd. Tryck Hjälp igen och välj Tillåt." : e && e.code === "rate_limited" ? "För många frågor just nu. Vänta en minut." : "Kunde inte hämta hjälp just nu.";
+    renderTodos();
+  }
+}
+
+/* ---------- Rapporter ---------- */
+function renderReports() {
+  const box = $("reports");
+  if (state.rapporter === null) return;
+  $("s-reports").textContent = state.rapporter.length;
+  if (!state.rapporter.length) { box.innerHTML = `<div class="empty">Inga rapporter än.</div>`; return; }
+  const list = [...state.rapporter].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 8);
+  box.innerHTML = list.map(r => `<div class="row"><span class="date">${esc(r.date)}</span><span class="title">${r.path ? `<a href="${REPO}/blob/main/${esc(r.path)}" target="_blank" rel="noopener">${esc(r.title)}</a>` : esc(r.title)}<small>${esc(r.summary || r.agent || "")}</small></span><span></span></div>`).join("");
+}
+
+/* ---------- Händelser ---------- */
 document.addEventListener("click", e => {
-  const b = e.target.closest("button.copy"); if (!b) return;
-  const text = b.dataset.cmd;
-  const done = () => { b.textContent = "Kopierad"; setTimeout(() => b.textContent = "Kopiera", 1600); };
-  const fallback = () => { const code = b.previousElementSibling; const r = document.createRange(); r.selectNodeContents(code); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Markerad – kopiera"; };
-  try { navigator.clipboard.writeText(text).then(done, fallback); } catch (err) { fallback(); }
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.run && mcp) runAgent(b.dataset.run, b);
+  else if (b.dataset.approve) decide(b.dataset.approve, "godkand", b);
+  else if (b.dataset.reject) decide(b.dataset.reject, "avvisad", b);
+  else if (b.dataset.help) helpWith(b.dataset.help);
+  else if (b.dataset.del && db) db.doc("todos/" + b.dataset.del).delete().catch(() => {});
 });
+document.addEventListener("change", e => {
+  const id = e.target.dataset && e.target.dataset.toggle;
+  if (id && db) db.doc("todos/" + id).update({ done: e.target.checked }).catch(() => { e.target.checked = !e.target.checked; });
+});
+$("add-todo").addEventListener("submit", async e => {
+  e.preventDefault();
+  const text = $("todo-text").value.trim(); if (!text || !db) return;
+  $("todo-text").value = "";
+  try { await db.collection("todos").add({ text, note: "", prio: $("todo-prio").value, done: false, createdAt: new Date().toISOString() }); }
+  catch { $("todo-text").value = text; }
+});
+
+/* ---------- Start ---------- */
+renderAgents();
+function notice(text) { const n = $("cap-notice"); n.textContent = text; n.hidden = false; }
+
+(async () => {
+  db = await window.claude?.use?.("db") ?? null;
+  if (!db) {
+    ["props","todos","reports"].forEach(id => $(id).innerHTML = `<div class="empty">Logga in på claude.ai för att se den här delen.</div>`);
+    notice("Kontrollrummets data visas bara när du är inloggad och öppnar sidan på claude.ai.");
+    return;
+  }
+  const timer = setTimeout(() => { if (state.todos === null) $("todos").innerHTML = `<div class="empty">Det tar längre tid än vanligt att hämta listan.</div>`; }, 10000);
+  const sub = (name, key, after) => db.collection(name).onSnapshot(s => {
+    clearTimeout(timer);
+    state[key] = s.docs.map(d => ({ id: d.id, ...d.data() }));
+    after();
+  }, () => { $(key === "todos" ? "todos" : key === "forslag" ? "props" : "reports").innerHTML = `<div class="empty">Kunde inte läsa datan.</div>`; });
+  sub("todos", "todos", renderTodos);
+  sub("forslag", "forslag", renderProps);
+  sub("rapporter", "rapporter", renderReports);
+  db.collection("korningar").onSnapshot(s => {
+    state.korningar = s.docs.map(d => d.data()).sort((a, b) => String(b.startedAt).localeCompare(String(a.startedAt)));
+    renderAgents();
+  }, () => {});
+})();
+
+(async () => {
+  mcp = await window.claude?.use?.("mcp") ?? null;
+  if (mcp) {
+    try {
+      const { servers } = await mcp.listTools(SRV);
+      const s = servers.find(x => x.server === SRV);
+      if (s && s.tools.length && !s.tools.some(t => t.name === "create_session")) mcp = null;
+    } catch {}
+  }
+  if (!mcp) notice("Kör-knapparna fungerar bara i claude.ai med kopplingen Claude Code Remote. Du kan fortfarande starta agenterna genom att skriva till Jarvis i en session.");
+  renderAgents();
+})();
+
+(async () => {
+  sample = await window.claude?.use?.("sample") ?? null;
+  renderTodos();
+})();
 </script>
