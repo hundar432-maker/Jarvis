@@ -1,629 +1,522 @@
 <title>Jarvis Kontrollrum</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap">
 <style>
-/* Layout: kontrollrum – siffror, förslag att godkänna, ekonomi (kalkyl + fasta kostnader), agenter per team, sedan att-göra och rapporter */
+/* Layout: lugn app – smal kolumn, flikar överst, en sak i fokus per vy */
 :root {
-  --bg: #F6F9FC; --panel: #FFFFFF; --line: #D9E3EE; --fg: #0F2233; --muted: #5A6B7D;
-  --accent: #2E6A9E; --accent-fg: #FFFFFF; --accent-soft: #E3ECF5;
-  --ok: #2F7D5B; --ok-bg: #E2F2EA; --warn: #9A6400; --warn-bg: #FBF0D9; --wait: #5A6B7D; --wait-bg: #EAEFF4; --bad: #A33B3B; --bad-bg: #F8E4E4;
+  --bg: #F4F7FA; --panel: #FFFFFF; --line: #E2E8EF; --fg: #0F2233; --muted: #64748B; --faint: #94A3B4;
+  --accent: #24598A; --accent-fg: #FFFFFF; --accent-soft: #E8F0F7;
+  --ok: #2F7D5B; --ok-bg: #E4F3EB; --warn: #8F5E00; --warn-bg: #FBF1DC; --bad: #A33B3B; --bad-bg: #F9E6E6;
   --f-display: "DM Serif Display", Georgia, serif;
   --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  --shadow: 0 1px 2px rgba(15,34,51,.04), 0 4px 16px rgba(15,34,51,.04);
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0B1722; --panel: #112231; --line: #1F3447; --fg: #E6EEF6; --muted: #93A6B8;
-  --accent: #7FB2DE; --accent-fg: #0B1722; --accent-soft: #17304A;
-  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B; --bad: #F09A9A; --bad-bg: #3A1717;
-  color-scheme: dark } }
+  --bg: #0C1620; --panel: #12202D; --line: #1F2F3E; --fg: #E7EEF5; --muted: #98A9BA; --faint: #6B7D8F;
+  --accent: #8BB8E0; --accent-fg: #0C1620; --accent-soft: #182C3F;
+  --ok: #82D2AB; --ok-bg: #133628; --warn: #EEC46E; --warn-bg: #382B10; --bad: #F09C9C; --bad-bg: #3A1919;
+  --shadow: none; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0B1722; --panel: #112231; --line: #1F3447; --fg: #E6EEF6; --muted: #93A6B8;
-  --accent: #7FB2DE; --accent-fg: #0B1722; --accent-soft: #17304A;
-  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B; --bad: #F09A9A; --bad-bg: #3A1717;
-  color-scheme: dark }
+  --bg: #0C1620; --panel: #12202D; --line: #1F2F3E; --fg: #E7EEF5; --muted: #98A9BA; --faint: #6B7D8F;
+  --accent: #8BB8E0; --accent-fg: #0C1620; --accent-soft: #182C3F;
+  --ok: #82D2AB; --ok-bg: #133628; --warn: #EEC46E; --warn-bg: #382B10; --bad: #F09C9C; --bad-bg: #3A1919;
+  --shadow: none; color-scheme: dark }
 
-body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
-.wrap { max-width: 1120px; margin: 0 auto; padding-block: 32px 64px;
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 28px 72px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: grid; gap: 40px; }
-header { display: grid; gap: 6px; }
-.kicker { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
-h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(34px, 6vw, 52px); line-height: 1.05; margin: 0; text-wrap: balance; }
-.lede { color: var(--muted); max-width: 64ch; margin: 4px 0 0; }
-h2 { font-family: var(--f-display); font-weight: 400; font-size: 26px; margin: 0; }
-h3.sub { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-.section { display: grid; gap: 14px; align-content: start; min-width: 0; }
-.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.sec-head p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 70ch; }
+  display: grid; gap: 24px; }
 
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
-.stat { padding: 16px 18px; display: grid; gap: 2px; min-width: 0; }
-.stat + .stat { border-left: 1px solid var(--line); }
-.stat b { font-family: var(--f-display); font-weight: 400; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
-.stat span { color: var(--muted); font-size: 13px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.mark { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; font-family: var(--f-display); font-size: 18px; }
+.brand b { font-weight: 600; font-size: 15px; display: block; line-height: 1.2; }
+.brand span { font-size: 12.5px; color: var(--muted); }
 
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
-.team { display: grid; gap: 12px; }
-.team + .team { margin-top: 12px; }
-.team-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.team-head p { margin: 0; color: var(--muted); font-size: 13px; }
-.grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
-.agent { padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
-.agent-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.agent h4 { margin: 0; font-size: 17px; font-weight: 600; }
-.file { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); }
-.does { margin: 0; }
-.rule { display: grid; grid-template-columns: 52px 1fr; gap: 8px; font-size: 13.5px; margin: 0; }
-.rule dt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
-.rule dd { margin: 0; }
-.run { display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 12px; }
-textarea, .field input, .field select, .add input, .add select { box-sizing: border-box; font: 14px/1.4 var(--f-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
-.run textarea { width: 100%; resize: vertical; min-height: 38px; font-size: 13.5px; }
-.run-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.last { font-size: 12.5px; color: var(--muted); }
-.last a, .msg a, .notice a { color: var(--accent); }
-.msg { font-size: 13px; }
+nav.tabs { display: flex; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 4px; box-shadow: var(--shadow); overflow-x: auto; }
+nav.tabs a { flex: 1; text-align: center; padding: 8px 12px; border-radius: 9px; color: var(--muted); text-decoration: none; font-weight: 500; font-size: 14px; white-space: nowrap; }
+nav.tabs a[aria-current="page"] { background: var(--accent-soft); color: var(--fg); }
+nav.tabs a:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.count { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 4px; border-radius: 9px; background: var(--accent); color: var(--accent-fg); font-size: 11px; line-height: 18px; }
+
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(30px, 6vw, 40px); line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.view { display: grid; gap: 28px; }
+.block { display: grid; gap: 10px; }
+.intro { color: var(--muted); margin: 6px 0 0; }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.pad { padding: 18px 20px; }
+.empty { padding: 18px 20px; color: var(--muted); }
+
+/* Nästa steg */
+.next { padding: 22px; display: grid; gap: 12px; }
+.next small { font-size: 12.5px; color: var(--muted); }
+.next h3 { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.3; }
+.next p { margin: 0; color: var(--muted); }
+.next .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.metric { padding: 14px 16px; display: grid; gap: 2px; }
+.metric b { font-family: var(--f-display); font-weight: 400; font-size: 26px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.metric span { font-size: 12.5px; color: var(--muted); }
+
+.list > * + * { border-top: 1px solid var(--line); }
+.item { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 13px 18px; }
+.item .t { min-width: 0; }
+.item .t small { display: block; color: var(--muted); font-size: 13px; }
+.item.done .t > span { text-decoration: line-through; color: var(--faint); }
+.item input[type=checkbox] { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.help { grid-column: 2 / -1; background: var(--bg); border-radius: 10px; padding: 12px 14px; font-size: 14px; white-space: pre-wrap; }
+details.more > summary { list-style: none; cursor: pointer; padding: 12px 18px; color: var(--accent); font-weight: 500; font-size: 14px; }
+details.more > summary::-webkit-details-marker { display: none; }
+.add { display: flex; gap: 8px; padding: 12px 18px; }
+.add input { flex: 1; min-width: 0; }
+
+input, select, textarea { box-sizing: border-box; font: 14.5px/1.4 var(--f-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+textarea { width: 100%; resize: vertical; min-height: 44px; }
+button { font: 500 14px var(--f-body); border-radius: 10px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--fg); }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+button.link { border: 0; background: none; color: var(--muted); padding: 4px 6px; font-size: 13px; }
+button.link:hover { color: var(--fg); }
+button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.tag { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+.tag.ok { color: var(--ok); background: var(--ok-bg); }
+.tag.warn { color: var(--warn); background: var(--warn-bg); }
+.tag.bad { color: var(--bad); background: var(--bad-bg); }
+.tag.muted { color: var(--muted); background: var(--bg); }
+
+/* Förslag */
+.prop { padding: 18px 20px; display: grid; gap: 12px; }
+.prop h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.prop .after { background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.prop .before { font-size: 13.5px; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.prop .why { font-size: 13.5px; color: var(--muted); margin: 0; }
+.row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Agenter */
+details.agent > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 15px 18px; }
+details.agent > summary::-webkit-details-marker { display: none; }
+details.agent summary b { font-weight: 600; display: block; }
+details.agent summary small { color: var(--muted); font-size: 13.5px; display: block; }
+.chev { color: var(--faint); transition: transform .15s; }
+details[open] .chev { transform: rotate(90deg); }
+.agent-body { padding: 0 18px 18px; display: grid; gap: 10px; }
+.agent-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.msg { font-size: 13.5px; color: var(--muted); }
 .msg.err { color: var(--bad); }
 .msg.ok { color: var(--ok); }
-.out { background: var(--bg); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 360px; overflow: auto; }
-
-button { font: 500 13px var(--f-body); border-radius: 8px; padding: 7px 12px; cursor: pointer; border: 1px solid var(--line); background: transparent; color: var(--fg); }
-button:hover { border-color: var(--accent); }
-button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-button.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-button.ghost { border-color: transparent; color: var(--muted); padding: 4px 8px; }
-button:disabled { opacity: .5; cursor: default; }
-
-.pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
-.pill.ok { color: var(--ok); background: var(--ok-bg); }
-.pill.warn { color: var(--warn); background: var(--warn-bg); }
-.pill.wait { color: var(--wait); background: var(--wait-bg); }
-.pill.info { color: var(--accent); background: var(--accent-soft); }
-.pill.bad { color: var(--bad); background: var(--bad-bg); }
-
-.props { display: grid; gap: 12px; }
-.prop { padding: 16px; display: grid; gap: 10px; }
-.prop-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
-.prop h4 { margin: 0; font-size: 16px; font-weight: 600; }
-.ba { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
-.ba div { background: var(--bg); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; white-space: pre-wrap; min-width: 0; overflow-wrap: anywhere; }
-.ba small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.why { margin: 0; font-size: 13.5px; color: var(--muted); }
-.actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.empty { padding: 18px 16px; color: var(--muted); font-size: 14px; }
+.msg a { color: var(--accent); }
+.out { background: var(--bg); border-radius: 10px; padding: 12px 14px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 420px; overflow: auto; }
+.note { font-size: 13px; color: var(--muted); }
 
 /* Ekonomi */
-.eco-stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
-.eco-stat { padding: 14px 16px; display: grid; gap: 2px; }
-.eco-stat b { font-family: var(--f-display); font-weight: 400; font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-.eco-stat span { color: var(--muted); font-size: 13px; }
-.table-wrap { overflow-x: auto; }
-table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 860px; }
-th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
-th { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-td small { display: block; color: var(--muted); font-size: 12px; }
-tr:last-child td { border-bottom: 0; }
-.na { color: var(--muted); }
-details.form { border-top: 1px solid var(--line); }
-details.form summary { cursor: pointer; padding: 12px 16px; font-weight: 500; color: var(--accent); }
-.form-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; padding: 0 16px 16px; }
-.field { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); min-width: 0; }
+.eco-row { display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 14px; align-items: center; padding: 13px 18px; }
+.eco-row .t small { display: block; color: var(--muted); font-size: 13px; }
+.eco-row .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eco-row .num small { display: block; color: var(--muted); font-size: 12px; }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; padding: 0 18px 18px; }
+.field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
 .field input, .field select { width: 100%; color: var(--fg); }
-.form-actions { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.assume { font-size: 12.5px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.assume input { width: 64px; }
+.form .full { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-.two { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 28px; align-items: start; }
-.row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 12px; align-items: start; padding: 13px 16px; }
-.row + .row { border-top: 1px solid var(--line); }
-.row .title small { display: block; color: var(--muted); font-size: 12.5px; }
-.row.done .title > span { text-decoration: line-through; color: var(--muted); }
-.row input[type=checkbox] { width: 17px; height: 17px; margin: 3px 0 0; accent-color: var(--accent); }
-.row-side { display: flex; gap: 6px; align-items: center; }
-.help { grid-column: 2 / -1; background: var(--bg); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; white-space: pre-wrap; }
-.add { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); flex-wrap: wrap; }
-.add input { flex: 1; min-width: 160px; }
-.date { font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 2px; }
-.report-body { grid-column: 1 / -1; }
-details.rep summary { cursor: pointer; color: var(--accent); font-size: 13px; }
-.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; padding: 16px; margin: 0; font-size: 14px; }
-.facts dt { color: var(--muted); }
-.facts dd { margin: 0; }
-.missing { color: var(--warn); font-weight: 500; }
-.notice { font-size: 13px; color: var(--fg); padding: 10px 14px; border: 1px dashed var(--line); border-radius: 10px; background: var(--panel); }
-footer { color: var(--muted); font-size: 12.5px; }
-footer code { font-family: var(--f-mono); }
+/* Rapporter */
+details.rep > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; padding: 13px 18px; }
+details.rep > summary::-webkit-details-marker { display: none; }
+details.rep summary small { display: block; color: var(--muted); font-size: 13px; }
+details.rep .date { color: var(--faint); font-size: 13px; font-variant-numeric: tabular-nums; }
+.rep-body { padding: 0 18px 16px; }
+.rep-body a { color: var(--accent); }
 
-@media (max-width: 860px) { .grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .two { grid-template-columns: minmax(0,1fr); } .form-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-@media (max-width: 560px) {
-  .grid, .ba, .eco-stats { grid-template-columns: minmax(0,1fr); }
-  .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .stat:nth-child(3) { border-left: 0; }
-  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+footer { color: var(--faint); font-size: 12.5px; text-align: center; }
+
+@media (max-width: 520px) {
+  .metrics { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .metrics .metric:last-child { grid-column: 1 / -1; }
+  .form { grid-template-columns: minmax(0,1fr); }
+  nav.tabs a { padding: 8px 10px; font-size: 13.5px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
 <div class="wrap">
   <header>
-    <div class="kicker">Jarvis · SnöTass</div>
-    <h1>Kontrollrummet</h1>
-    <p class="lede">Kör agenter, godkänn förslag, följ kostnader och marginaler och håll koll på det du behöver göra.</p>
+    <div class="brand"><div class="mark" aria-hidden="true">J</div><div><b>Jarvis</b><span>SnöTass kontrollrum</span></div></div>
   </header>
 
-  <div class="stats" aria-label="Sammanfattning">
-    <div class="stat"><b id="s-margin">–</b><span>snittmarginal</span></div>
-    <div class="stat"><b id="s-props">–</b><span>förslag att granska</span></div>
-    <div class="stat"><b id="s-todos">–</b><span>saker kvar att göra</span></div>
-    <div class="stat"><b id="s-reports">–</b><span>rapporter</span></div>
-  </div>
+  <nav class="tabs" aria-label="Vyer">
+    <a href="#idag" data-view="idag">Idag</a>
+    <a href="#agenter" data-view="agenter">Agenter</a>
+    <a href="#ekonomi" data-view="ekonomi">Ekonomi</a>
+    <a href="#rapporter" data-view="rapporter">Rapporter</a>
+  </nav>
 
-  <div id="cap-notice" class="notice" hidden></div>
-
-  <section class="section" aria-labelledby="h-props">
-    <div class="sec-head"><h2 id="h-props">Förslag att godkänna</h2><p>Optimeringsagenten lägger förslag här varje morgon. Inget ändras i butiken förrän du godkänner.</p></div>
-    <div id="props" class="props"><div class="card empty">Hämtar förslag …</div></div>
-  </section>
-
-  <section class="section" aria-labelledby="h-eco">
-    <div class="sec-head"><h2 id="h-eco">Ekonomi</h2><p>Ekonomiagenten fyller i saknade siffror. Du kan också lägga till och ändra själv. Inköp anges exkl. moms, säljpris inkl. 25 % moms.</p></div>
-    <div class="eco-stats">
-      <div class="card eco-stat"><b id="e-fixed">–</b><span>fasta kostnader per månad</span></div>
-      <div class="card eco-stat"><b id="e-avg">–</b><span>snittmarginal per order</span></div>
-      <div class="card eco-stat"><b id="e-be">–</b><span>ordrar per månad för att gå jämnt ut</span></div>
+  <!-- IDAG -->
+  <main class="view" id="v-idag">
+    <div>
+      <h1 id="greet">Hej!</h1>
+      <p class="intro" id="greet-sub">Här är det enda du behöver tänka på just nu.</p>
     </div>
 
-    <h3 class="sub">Produkter och leverantörer</h3>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Produkt / leverantör</th><th class="num">Säljpris</th><th class="num">Inköp</th><th class="num">Frakt</th><th class="num">Övrigt</th><th class="num">Marginal</th><th class="num">Leverans</th><th>Kontakt</th><th></th></tr></thead>
-          <tbody id="kalkyl"><tr><td colspan="9" class="na">Hämtar kalkylen …</td></tr></tbody>
-        </table>
+    <section class="block" aria-labelledby="h-next">
+      <h2 id="h-next">Nästa steg</h2>
+      <div class="card" id="next"><div class="empty">Hämtar …</div></div>
+    </section>
+
+    <section class="block" id="props-block" hidden aria-labelledby="h-props">
+      <h2 id="h-props">Väntar på ditt ja</h2>
+      <div id="props" style="display:grid;gap:10px"></div>
+    </section>
+
+    <section class="block" aria-labelledby="h-later">
+      <h2 id="h-later">Senare</h2>
+      <div class="card list" id="later"><div class="empty">Hämtar …</div></div>
+    </section>
+  </main>
+
+  <!-- AGENTER -->
+  <main class="view" id="v-agenter" hidden>
+    <div>
+      <h1>Ditt team</h1>
+      <p class="intro">Öppna en agent, skriv vad du vill ha hjälp med och tryck Kör. Svaret kommer direkt här.</p>
+    </div>
+    <div class="card list" id="agents"></div>
+    <section class="block" aria-labelledby="h-auto">
+      <h2 id="h-auto">Arbetar automatiskt</h2>
+      <div class="card list">
+        <div class="item"><span class="tag ok">Varje morgon</span><span class="t"><span>Optimeringsagenten</span><small>Lägger förslag på bättre produktsidor och annonser</small></span><span></span></div>
+        <div class="item"><span class="tag ok">Måndagar</span><span class="t"><span>Trendspanaren</span><small>Gör veckans trendrapport</small></span><span></span></div>
       </div>
-      <details class="form" id="k-details">
-        <summary id="k-summary">Lägg till produkt eller leverantör</summary>
-        <form class="form-grid" id="k-form">
-          <label class="field">Produkt<input id="k-produkt" required></label>
-          <label class="field">Leverantör<input id="k-leverantor" required></label>
-          <label class="field">Kanal<input id="k-kanal" placeholder="t.ex. Shopify Collective"></label>
-          <label class="field">Status<select id="k-status"><option value="kandidat">Kandidat</option><option value="vald">Vald</option><option value="nej">Nej</option></select></label>
-          <label class="field">Säljpris (kr inkl. moms)<input id="k-salj" type="number" min="0" step="0.01" inputmode="decimal"></label>
-          <label class="field">Inköp (kr exkl. moms)<input id="k-inkop" type="number" min="0" step="0.01" inputmode="decimal"></label>
-          <label class="field">Frakt per order (kr)<input id="k-frakt" type="number" min="0" step="0.01" inputmode="decimal"></label>
-          <label class="field">Övrigt (kr)<input id="k-ovrigt" type="number" min="0" step="0.01" inputmode="decimal"></label>
-          <label class="field">Leveranstid (dagar)<input id="k-leveranstid" placeholder="t.ex. 2–4"></label>
-          <label class="field">Kontaktmejl<input id="k-kontakt" type="email"></label>
-          <label class="field">Länk<input id="k-lank" type="url"></label>
-          <label class="field">Källa<input id="k-kalla" placeholder="Var kommer siffrorna ifrån?"></label>
-          <div class="form-actions"><button class="primary" type="submit" id="k-save">Spara</button><button type="button" id="k-cancel" hidden>Avbryt ändring</button><span class="msg" id="k-msg"></span></div>
-        </form>
-      </details>
+    </section>
+  </main>
+
+  <!-- EKONOMI -->
+  <main class="view" id="v-ekonomi" hidden>
+    <div>
+      <h1>Ekonomi</h1>
+      <p class="intro">Vad varje produkt ger dig, och hur mycket du behöver sälja.</p>
     </div>
-    <div class="assume"><label for="fee">Antagen betalavgift</label><input id="fee" type="number" min="0" max="20" step="0.1" value="3"> % av ordervärdet. Ändra när du vet din betallösning.</div>
-
-    <h3 class="sub">Fasta kostnader</h3>
-    <div class="card">
-      <div id="fasta"><div class="empty">Hämtar …</div></div>
-      <form class="add" id="f-form">
-        <input id="f-namn" aria-label="Kostnad" placeholder="Kostnad, t.ex. Shopify-plan" required>
-        <input id="f-belopp" aria-label="Kr per månad" type="number" min="0" step="1" placeholder="kr/mån" style="flex:0 1 110px;min-width:90px">
-        <button class="primary" type="submit">Lägg till</button>
-      </form>
+    <div class="metrics">
+      <div class="card metric"><b id="e-avg">–</b><span>snittmarginal</span></div>
+      <div class="card metric"><b id="e-fixed">–</b><span>fasta kostnader/mån</span></div>
+      <div class="card metric"><b id="e-be">–</b><span>ordrar/mån för att gå runt</span></div>
     </div>
-  </section>
 
-  <section class="section" aria-labelledby="h-agents">
-    <div class="sec-head"><h2 id="h-agents">Agenterna</h2><p><b>Kör nu</b> svarar direkt här på sidan. <b>Kör i bakgrunden</b> startar en egen session som kan söka på webben och spara i repot.</p></div>
-    <div id="bg-status" class="notice" hidden></div>
-    <div id="teams"></div>
-  </section>
+    <section class="block" aria-labelledby="h-prod">
+      <h2 id="h-prod">Produkter och leverantörer</h2>
+      <div class="card list">
+        <div id="kalkyl"><div class="empty">Hämtar …</div></div>
+        <details class="more" id="k-details">
+          <summary id="k-summary">+ Lägg till produkt</summary>
+          <form class="form" id="k-form">
+            <label class="field">Produkt<input id="k-produkt" required></label>
+            <label class="field">Leverantör<input id="k-leverantor" required></label>
+            <label class="field">Säljpris, kr (inkl. moms)<input id="k-salj" type="number" min="0" step="0.01" inputmode="decimal"></label>
+            <label class="field">Inköp, kr (exkl. moms)<input id="k-inkop" type="number" min="0" step="0.01" inputmode="decimal"></label>
+            <label class="field">Frakt per order, kr<input id="k-frakt" type="number" min="0" step="0.01" inputmode="decimal"></label>
+            <label class="field">Leveranstid, dagar<input id="k-leveranstid" placeholder="t.ex. 2–4"></label>
+            <label class="field">Kontaktmejl<input id="k-kontakt" type="email"></label>
+            <label class="field">Status<select id="k-status"><option value="kandidat">Kandidat</option><option value="vald">Vald</option><option value="nej">Nej</option></select></label>
+            <div class="full"><button class="primary" type="submit" id="k-save">Spara</button><button type="button" id="k-cancel" hidden>Avbryt</button><span class="msg" id="k-msg"></span></div>
+          </form>
+        </details>
+      </div>
+      <p class="note">Grönt = minst 40 % marginal. Moms 25 % och betalavgift <input id="fee" type="number" min="0" max="20" step="0.1" value="3" aria-label="Betalavgift i procent" style="width:64px;padding:4px 8px"> % är inräknade.</p>
+    </section>
 
-  <div class="two">
-    <section class="section" aria-labelledby="h-todo">
-      <div class="sec-head"><h2 id="h-todo">Att göra</h2><p>Tryck Hjälp för en steg-för-steg-guide.</p></div>
-      <div class="card">
-        <div id="todos"><div class="empty">Hämtar listan …</div></div>
-        <form class="add" id="add-todo">
-          <input id="todo-text" aria-label="Ny uppgift" placeholder="Ny uppgift, t.ex. Fota tassvaxet" autocomplete="off">
-          <select id="todo-prio" aria-label="Prioritet"><option value="viktigt">Viktigt</option><option value="snabbt" selected>Snabbt</option><option value="sen">Sen</option></select>
-          <button type="submit" class="primary">Lägg till</button>
+    <section class="block" aria-labelledby="h-fixed">
+      <h2 id="h-fixed">Fasta kostnader</h2>
+      <div class="card list">
+        <div id="fasta"><div class="empty">Hämtar …</div></div>
+        <form class="add" id="f-form">
+          <input id="f-namn" aria-label="Kostnad" placeholder="t.ex. Shopify-plan" required>
+          <input id="f-belopp" aria-label="Kronor per månad" type="number" min="0" step="1" placeholder="kr/mån" style="flex:0 0 100px">
+          <button type="submit">Lägg till</button>
         </form>
       </div>
     </section>
+  </main>
 
-    <div class="section">
-      <section class="section" aria-labelledby="h-reports">
-        <h2 id="h-reports">Rapporter</h2>
-        <div class="card" id="reports"><div class="empty">Hämtar rapporter …</div></div>
-      </section>
-      <section class="section" aria-labelledby="h-shop">
-        <h2 id="h-shop">Butiken</h2>
-        <div class="card">
-          <dl class="facts">
-            <dt>Namn</dt><dd>SnöTass</dd>
-            <dt>Nisch</dt><dd>Vinterprodukter för hund och katt</dd>
-            <dt>Produkter</dt><dd>3 (tassvax, vinterkoja, hundtäcke)</dd>
-            <dt>Domän</dt><dd>snowtass.com – ej köpt</dd>
-            <dt>Villkor</dt><dd class="missing">Saknas – fyll i</dd>
-          </dl>
-        </div>
-      </section>
+  <!-- RAPPORTER -->
+  <main class="view" id="v-rapporter" hidden>
+    <div>
+      <h1>Rapporter</h1>
+      <p class="intro">Allt agenterna har tagit fram, senaste först.</p>
     </div>
-  </div>
+    <div class="card list" id="reports"><div class="empty">Hämtar …</div></div>
+  </main>
 
-  <footer>Data från <code>hundar432-maker/jarvis</code> och Kontrollrummets databas. Optimeringsagenten körs varje morgon och trendspanaren varje måndag.</footer>
+  <footer id="foot">SnöTass · Jarvis</footer>
 </div>
 
 <script>
-const SRV = "Claude Code Remote";
-const REPO = "https://github.com/hundar432-maker/jarvis";
-const ENV = "env_012G9cfKf9YgSqY6jjZ9ZHv5";
-const VAT = 0.25;
-
+const SRV = "Claude Code Remote", REPO = "https://github.com/hundar432-maker/jarvis", ENV = "env_012G9cfKf9YgSqY6jjZ9ZHv5", VAT = 0.25;
 const SHOP = `SnöTass: svensk webbutik (Shopify) med vinterprodukter för hundar och katter. Under uppbyggnad, inga försäljningar än.
-Produkter: Tassvax mot vägsalt 60 ml 229 kr; Varm vinterkoja för katt och hund M 549 kr / L 649 kr; Vattentätt hundtäcke med fleece S 499 / M 549 / L 599 kr.
+Produkter: Tassvax mot vägsalt 60 ml 229 kr; Varm vinterkoja för katt och hund M 549 / L 649 kr; Vattentätt hundtäcke med fleece S 499 / M 549 / L 599 kr.
 Löfte: "Varma tassar hela vintern". Ton: varm, enkel, du-tilltal, korta meningar, inga överdrifter eller hälsopåståenden.
-Villkor: 14 dagars ångerrätt enligt lag. Leveranstid, fraktkostnad och kontaktmejl är inte bestämda än – skriv [FYLL I].
-Regler: inga pengar eller utskick utan ägarens godkännande, hitta aldrig på siffror, följ svensk lag (konsumentköplagen, marknadsföringslagen).`;
+Villkor: 14 dagars ångerrätt. Leveranstid, frakt och kontaktmejl ej bestämda – skriv [FYLL I].
+Regler: inga pengar eller utskick utan ägarens godkännande, hitta aldrig på siffror, följ svensk lag.`;
 
-const TEAMS = [
-  { name: "Inköp och ekonomi", desc: "Produkter, leverantörer och pengar", agents: [
-    { name: "Ekonomiagenten", file: "ekonomiagent", status: ["info","Ny"], quick: true, does: "Håller koll på kostnader, jämför leverantörer och räknar marginal, leveranstid och kontakter.", not: "Beställa, betala eller hitta på priser.", ph: "Valfritt: t.ex. vilken leverantör ger bäst marginal på tassvax?",
-      task: "Du är ekonomiagent. Analysera kalkylen nedan: räkna marginal per rad (pris exkl. moms = säljpris/1,25; kostnad = inköp + frakt + övrigt + säljpris × betalavgift), jämför leverantörer för samma produkt, peka ut vad som saknas (inköp, frakt, leveranstid, kontaktmejl) och vad ägaren ska fråga leverantören. Ge en tydlig rekommendation. Mål: minst 40 % marginal, varna under 30 %. Hitta aldrig på priser." },
-    { name: "Trendspanaren", file: "trendspanare", status: ["info","Varje måndag"], quick: false, does: "Hittar trendande husdjursprodukter och betygsätter dem 1–10.", not: "Köpa något eller kontakta någon.", ph: "Valfritt: t.ex. fokusera på katter" },
-    { name: "Leverantörsjämföraren", file: "leverantorsjamforare", status: ["ok","Redo"], quick: false, does: "Söker leverantörer på webben och räknar den verkliga totalkostnaden.", not: "Beställa varor.", ph: "Vilken produkt? t.ex. hundtäcken" },
-    { name: "Kontaktagenten", file: "kontaktagent", status: ["ok","Redo"], quick: true, does: "Skriver mejlutkast till leverantörer: prov, priser, påminnelser.", not: "Skicka mejl själv.", ph: "Till vem och om vad?",
-      task: "Du är kontaktagent. Skriv personliga mejlutkast till leverantörer (svenska till svenska leverantörer, annars engelska). Fråga om dropshipping/grossistpris, leveranstid till Sverige, varuprov, returer. Lova aldrig volymer eller avtal. Ägaren skickar själv." }
-  ]},
-  { name: "Butik", desc: "Möter kunderna", agents: [
-    { name: "Optimeringsagenten", file: "optimeringsagent", status: ["info","Varje morgon"], quick: true, does: "Förbättrar produktsidor och annonser för högre försäljning, via förslag du godkänner.", not: "Ändra butiken utan godkännande eller köpa annonser.", ph: "Valfritt: t.ex. fokusera på tassvaxet",
-      task: "Du är optimeringsagent. Ge 1–3 konkreta förslag som troligast höjer försäljningen: produktsida (titel, första mening, fördelar, förtroende, paketpris) eller annonser (2–3 varianter med rubrik, text, bildidé, målgrupp). Visa NU och FÖRSLAG och varför. Ingen falsk brådska, inga falska rabatter." },
-    { name: "Produktagenten", file: "produktagent", status: ["ok","Redo"], quick: true, does: "Skriver produkttexter, titlar och SEO.", not: "Publicera utan ditt godkännande.", ph: "Vilken produkt?",
-      task: "Du är produktagent. Skriv: titel (max 60 tecken), inledning 1–2 meningar, 3–5 fördelar, fakta (material, storlekar, skötsel – [FYLL I] om okänt), metatitel och metabeskrivning (max 155 tecken)." },
-    { name: "Marknadsagenten", file: "marknadsagent", status: ["ok","Redo"], quick: true, does: "Gör veckoplan för sociala medier och nyhetsbrev.", not: "Köpa annonser eller publicera.", ph: "Valfritt: t.ex. kampanj inför jul",
-      task: "Du är marknadsagent. Gör en veckoplan med 3–5 inlägg (text, bildidé, hashtags) kopplade till säsongen, plus ett kort nyhetsbrev (ämnesrad, text, uppmaning). Följ marknadsföringslagen." },
-    { name: "Kundtjänst", file: "kundtjanst", status: ["warn","Behöver info"], quick: true, does: "Skriver svarsutkast på kundmejl.", not: "Lova återbetalning eller rabatt.", ph: "Klistra in kundens mejl",
-      task: "Du är kundtjänst. Skriv ett varmt, kort svarsutkast på kundens mejl. Använd bara fakta du har, annars [FYLL I]. Lova aldrig återbetalning, rabatt eller ersättning – föreslå det till ägaren. Arga eller juridiska ärenden: skriv först ⚠️ ÄGAREN BÖR SVARA SJÄLV." }
-  ]},
-  { name: "Drift", desc: "Behöver en kopplad butik", agents: [
-    { name: "Analysagenten", file: "analysagent", status: ["wait","Väntar på butik"], quick: false, does: "Gör en veckorapport om försäljning och bästsäljare.", not: "Ändra något i butiken.", ph: "Valfritt" },
-    { name: "Lageragenten", file: "lageragent", status: ["wait","Väntar på butik"], quick: false, does: "Varnar för lågt lager och ordrar som fastnat.", not: "Beställa varor.", ph: "Valfritt" }
-  ]}
+const AGENTS = [
+  { name: "Produkttexter", file: "produktagent", desc: "Skriver säljande texter till dina produkter", ph: "Vilken produkt? t.ex. tassvaxet",
+    task: "Du är produktagent. Skriv: titel (max 60 tecken), inledning 1–2 meningar, 3–5 fördelar, fakta (material, storlekar, skötsel – [FYLL I] om okänt), metatitel och metabeskrivning (max 155 tecken)." },
+  { name: "Försäljning och annonser", file: "optimeringsagent", desc: "Ger förslag som kan öka försäljningen", ph: "Valfritt: t.ex. annonser för vinterkojan", eco: true,
+    task: "Du är optimeringsagent. Ge 1–3 konkreta förslag som troligast höjer försäljningen: produktsida (titel, första mening, fördelar, förtroende, paketpris) eller annonser (2–3 varianter med rubrik, text, bildidé, målgrupp). Visa NU och FÖRSLAG och varför. Ingen falsk brådska eller falska rabatter." },
+  { name: "Ekonomi", file: "ekonomiagent", desc: "Jämför leverantörer och räknar marginal", ph: "t.ex. vilken leverantör är bäst för tassvax?", eco: true,
+    task: "Du är ekonomiagent. Analysera kalkylen: marginal per rad (pris exkl. moms = säljpris/1,25; kostnad = inköp + frakt + övrigt + säljpris × betalavgift), jämför leverantörer för samma produkt, säg vad som saknas och vad ägaren ska fråga leverantören. Ge en tydlig rekommendation. Mål minst 40 % marginal. Hitta aldrig på priser." },
+  { name: "Sociala medier", file: "marknadsagent", desc: "Gör veckans inlägg och nyhetsbrev", ph: "Valfritt: t.ex. inför jul",
+    task: "Du är marknadsagent. Gör en veckoplan med 3–5 inlägg (text, bildidé, hashtags) kopplade till säsongen, plus ett kort nyhetsbrev (ämnesrad, text, uppmaning). Följ marknadsföringslagen." },
+  { name: "Kundtjänst", file: "kundtjanst", desc: "Skriver svar på kundmejl", ph: "Klistra in kundens mejl",
+    task: "Du är kundtjänst. Skriv ett varmt, kort svarsutkast. Använd bara fakta du har, annars [FYLL I]. Lova aldrig återbetalning, rabatt eller ersättning. Arga eller juridiska ärenden: skriv först ⚠️ ÄGAREN BÖR SVARA SJÄLV." },
+  { name: "Mejl till leverantörer", file: "kontaktagent", desc: "Skriver förfrågningar om pris och varuprov", ph: "Till vem och om vad?",
+    task: "Du är kontaktagent. Skriv personliga mejlutkast till leverantörer (svenska till svenska, annars engelska). Fråga om pris, leveranstid till Sverige, varuprov och returer. Lova aldrig volymer eller avtal." },
+  { name: "Leta leverantörer på webben", file: "leverantorsjamforare", desc: "Söker och jämför leverantörer – tar några minuter", ph: "Vilken produkt? t.ex. hundtäcken", web: true },
+  { name: "Trendspaning", file: "trendspanare", desc: "Söker trender på webben – tar några minuter", ph: "Valfritt: t.ex. fokusera på katter", web: true }
 ];
-const AGENTS = TEAMS.flatMap(t => t.agents);
 
-const state = { todos: null, forslag: null, rapporter: null, korningar: [], kalkyl: null, fasta: null, fee: 3, feeVersion: false };
-let db = null, mcp = null, sample = null, bgReason = "Kontrollerar …";
-const output = {}, running = {};
+const state = { todos: null, forslag: null, rapporter: null, kalkyl: null, fasta: null, fee: 3 };
+let db = null, mcp = null, sample = null, bgOk = false;
+const output = {}, running = {}, helpText = {};
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const today = () => new Date().toISOString().slice(0, 10);
-const fmtDate = iso => { try { return new Date(iso).toLocaleDateString("sv-SE"); } catch { return ""; } };
-const kr = n => n == null || isNaN(n) ? "–" : Math.round(n).toLocaleString("sv-SE") + " kr";
 const num = v => v === "" || v == null || isNaN(+v) ? null : +v;
-const sessionUrl = id => "https://claude.ai/code/" + encodeURIComponent(id);
+const kr = n => n == null || isNaN(n) ? "–" : Math.round(n).toLocaleString("sv-SE") + " kr";
+const today = () => new Date().toISOString().slice(0, 10);
+
+/* ---------- Flikar ---------- */
+const VIEWS = ["idag", "agenter", "ekonomi", "rapporter"];
+function show() {
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "idag";
+  VIEWS.forEach(x => { $("v-" + x).hidden = x !== v; });
+  document.querySelectorAll("nav.tabs a").forEach(a => { if (a.dataset.view === v) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+}
+addEventListener("hashchange", show); show();
+
+/* ---------- Idag ---------- */
+function greet() {
+  const h = new Date().getHours();
+  $("greet").textContent = h < 10 ? "God morgon!" : h < 18 ? "Hej!" : "God kväll!";
+}
+const ORDER = { viktigt: 0, snabbt: 1, sen: 2 };
+function renderToday() {
+  if (state.todos === null) return;
+  const open = state.todos.filter(t => !t.done).sort((a, b) => (ORDER[a.prio] ?? 3) - (ORDER[b.prio] ?? 3) || String(a.createdAt).localeCompare(String(b.createdAt)));
+  const done = state.todos.filter(t => t.done);
+  const first = open[0];
+  $("greet-sub").textContent = open.length ? `Du har ${open.length} saker på listan. Ta en i taget – här är nästa.` : "Allt är avklarat. Snyggt jobbat!";
+  $("next").innerHTML = first ? `<div class="next">
+      <small>Steg 1 av ${open.length}</small>
+      <h3>${esc(first.text)}</h3>
+      ${first.note ? `<p>${esc(first.note)}</p>` : ""}
+      ${helpText[first.id] ? `<div class="help" id="help-${first.id}" style="grid-column:auto">${esc(helpText[first.id])}</div>` : ""}
+      <div class="actions">
+        <button class="primary" data-done="${first.id}">Klart</button>
+        ${sample ? `<button data-help="${first.id}">${helpText[first.id] ? "Visa igen" : "Visa hur"}</button>` : ""}
+      </div></div>` : `<div class="empty">Inget kvar att göra. Lägg till något under Senare om du vill.</div>`;
+  const rest = open.slice(1);
+  $("later").innerHTML = (rest.length ? rest.map(t => itemHtml(t)).join("") : `<div class="empty">Inget mer just nu.</div>`) +
+    (done.length ? `<details class="more"><summary>Visa avklarade (${done.length})</summary><div class="list">${done.map(t => itemHtml(t)).join("")}</div></details>` : "") +
+    `<form class="add" id="add-todo"><input id="todo-text" aria-label="Ny uppgift" placeholder="Lägg till en uppgift" autocomplete="off"><button type="submit">Lägg till</button></form>`;
+}
+function itemHtml(t) {
+  return `<div class="item ${t.done ? "done" : ""}">
+    <input type="checkbox" id="chk-${t.id}" data-toggle="${t.id}" ${t.done ? "checked" : ""} aria-label="Klar: ${esc(t.text)}">
+    <label class="t" for="chk-${t.id}"><span>${esc(t.text)}</span></label>
+    <button class="link" data-del="${t.id}" aria-label="Ta bort ${esc(t.text)}">Ta bort</button>
+    ${helpText[t.id] ? `<div class="help">${esc(helpText[t.id])}</div>` : ""}
+  </div>`;
+}
+async function helpWith(id) {
+  const t = state.todos.find(x => x.id === id); if (!t || !sample) return;
+  helpText[id] = "Tänker …"; renderToday();
+  const prompt = `Du hjälper en nybörjare som driver webbutiken SnöTass (vinterprodukter för husdjur, Shopify, Sverige). Uppgift: "${t.text}". ${t.note || ""}
+Ge en kort guide på svenska: högst 5 numrerade steg, enkla ord, ingen inledning. Sista raden: "Tid: ca X min".`;
+  try { await sample(prompt, { onText: ({ text }) => { helpText[id] = text; const el = $("help-" + id); if (el) el.textContent = text; } }); renderToday(); }
+  catch (e) { helpText[id] = e && e.code === "not_granted" ? "Tryck Visa hur igen och välj Tillåt." : "Kunde inte hämta hjälp just nu."; renderToday(); }
+}
+
+function renderProps() {
+  if (state.forslag === null) return;
+  const open = state.forslag.filter(f => f.status === "ny");
+  $("props-block").hidden = !open.length;
+  $("props").innerHTML = open.map(f => `<article class="card prop">
+      <h3>${esc(f.title)}</h3>
+      <div class="after">${esc(f.after)}</div>
+      ${f.before ? `<div class="before">Nu: ${esc(f.before)}</div>` : ""}
+      ${f.why ? `<p class="why">${esc(f.why)}</p>` : ""}
+      <div class="row-actions"><button class="primary" data-approve="${f.id}">Godkänn</button><button data-reject="${f.id}">Nej tack</button></div>
+    </article>`).join("");
+  const tab = document.querySelector('nav.tabs a[data-view="idag"]');
+  tab.innerHTML = "Idag" + (open.length ? `<span class="count">${open.length}</span>` : "");
+}
+
+/* ---------- Agenter ---------- */
+function renderAgents() {
+  const typed = {}; document.querySelectorAll("#agents textarea").forEach(t => typed[t.id] = t.value);
+  const openSet = new Set([...document.querySelectorAll("#agents details[open]")].map(d => d.dataset.file));
+  $("agents").innerHTML = AGENTS.map(a => {
+    const canRun = a.web ? (mcp && bgOk) : !!sample;
+    return `<details class="agent" data-file="${a.file}" ${openSet.has(a.file) ? "open" : ""}>
+      <summary><span><b>${a.name}</b><small>${a.desc}</small></span><span class="chev" aria-hidden="true">›</span></summary>
+      <div class="agent-body">
+        <textarea id="in-${a.file}" rows="2" placeholder="${esc(a.ph)}" aria-label="Vad vill du ha hjälp med?"></textarea>
+        <div class="agent-row">
+          <button class="primary" data-run="${a.file}" ${canRun && !running[a.file] ? "" : "disabled"}>${running[a.file] ? "Arbetar …" : "Kör"}</button>
+          ${a.web && !canRun ? `<span class="note">Fungerar bara i webbläsaren på claude.ai med kopplingen Claude Code Remote.</span>` : ""}
+        </div>
+        <div class="msg" id="msg-${a.file}" aria-live="polite"></div>
+        ${output[a.file] ? `<div class="out" id="out-${a.file}">${esc(output[a.file])}</div>` : ""}
+      </div>
+    </details>`; }).join("");
+  Object.entries(typed).forEach(([id, v]) => { const el = $(id); if (el) el.value = v; });
+}
+function ecoContext() {
+  const rows = (state.kalkyl || []).map(r => { const c = calc(r); return { produkt: r.produkt, leverantor: r.leverantor, status: r.status, salj: num(r.salj), inkop: num(r.inkop), frakt: num(r.frakt), leveranstid: r.leveranstid || null, kontakt: r.kontakt || null, marginal_procent: c && !c.missing ? Math.round(c.pct) : null }; });
+  const fasta = (state.fasta || []).map(f => ({ namn: f.namn, kr_per_manad: num(f.belopp) }));
+  return `Kalkyl: ${JSON.stringify(rows)}\nFasta kostnader: ${JSON.stringify(fasta)}\nBetalavgift: ${state.fee} %`;
+}
+async function runAgent(file, btn) {
+  const a = AGENTS.find(x => x.file === file); const input = $("in-" + file).value.trim();
+  const setMsg = (cls, html) => { const m = $("msg-" + file); if (m) { m.className = "msg " + cls; m.innerHTML = html; } };
+  if (a.web) {
+    btn.disabled = true; btn.textContent = "Startar …";
+    try {
+      const res = await mcp.callTool(SRV, "create_session", { prompt: `Jarvis: kör agenten ${file} (.claude/agents/${file}.md) enligt CLAUDE.md.${input ? "\n\nInstruktion från ägaren:\n" + input : ""}\n\nSpara resultatet i rapporter/, lägg till raden i Kontrollrummet och pusha till main. Svara på svenska.`, title: "Jarvis · " + a.name, source_url: REPO, environment_id: ENV, outcome_branch: "main" }, { cache: false });
+      const p = res && (res.payload ?? res); const id = (p && (p.session_id || p.id)) || (JSON.stringify(p ?? "").match(/session_[A-Za-z0-9]+/) || [""])[0];
+      setMsg("ok", "Startad. Resultatet hamnar under Rapporter om några minuter." + (id ? ` <a href="https://claude.ai/code/${encodeURIComponent(id)}" target="_blank" rel="noopener">Följ arbetet</a>` : ""));
+      $("in-" + file).value = "";
+    } catch (e) {
+      const c = e && e.code;
+      setMsg("err", c === "server_not_connected" ? "Lägg till kopplingen Claude Code Remote under Inställningar → Connectors." : c === "not_in_manifest" || c === "approval_required" ? "Tryck Kör igen och välj Tillåt." : c === "tool_error" ? "Kunde inte starta: " + esc(e.message) : "Det gick inte att starta (" + esc(c || "okänt") + ").");
+    } finally { btn.disabled = false; btn.textContent = "Kör"; }
+    return;
+  }
+  running[file] = true; output[file] = "Tänker …"; renderAgents();
+  const prompt = `${a.task}\n\nOm butiken:\n${SHOP}\n${a.eco ? "\n" + ecoContext() + "\n" : ""}\nÄgaren vill: ${input || "(ingen extra instruktion – gör det mest användbara)"}\n\nSvara på svenska, kort och tydligt med rubriker och punktlistor (vanlig text, inga tabeller). Du kan inte söka på webben: skriv "okänt" där fakta saknas.`;
+  try {
+    const res = await sample(prompt, { cache: false, onText: ({ text }) => { output[file] = text; const el = $("out-" + file); if (el) el.textContent = text; } });
+    output[file] = res.text; running[file] = false; renderAgents(); setMsg("ok", "Klart – sparat under Rapporter.");
+    $("in-" + file).value = "";
+    if (db) db.collection("rapporter").add({ title: a.name + (input ? ": " + input.slice(0, 50) : ""), agent: file, date: today(), summary: "", content: res.text, createdAt: new Date().toISOString() }).catch(() => {});
+  } catch (e) {
+    running[file] = false; output[file] = ""; renderAgents();
+    setMsg("err", e && e.code === "not_granted" ? "Tryck Kör igen och välj Tillåt." : e && e.code === "rate_limited" ? "Vänta en minut och försök igen." : "Det gick inte just nu (" + esc(e && e.code || "okänt") + ").");
+  }
+}
 
 /* ---------- Ekonomi ---------- */
 function calc(r) {
   const salj = num(r.salj), inkop = num(r.inkop), frakt = num(r.frakt), ovrigt = num(r.ovrigt) ?? 0;
   if (salj == null || salj <= 0) return null;
   const exm = salj / (1 + VAT);
-  if (inkop == null || frakt == null) return { exm, missing: true };
-  const cost = inkop + frakt + ovrigt + salj * state.fee / 100;
-  const m = exm - cost;
-  return { exm, cost, m, pct: m / exm * 100 };
+  if (inkop == null || frakt == null) return { missing: true };
+  const m = exm - inkop - frakt - ovrigt - salj * state.fee / 100;
+  return { m, pct: m / exm * 100 };
 }
-function marginPill(c) {
-  if (!c) return `<span class="na">Inget pris</span>`;
-  if (c.missing) return `<span class="pill wait">Saknar siffror</span>`;
-  const cls = c.pct >= 40 ? "ok" : c.pct >= 30 ? "warn" : "bad";
-  return `<span class="pill ${cls}">${c.pct.toFixed(0)} %</span><small>${kr(c.m)}/st</small>`;
-}
+let editing = null;
+const K = ["produkt","leverantor","salj","inkop","frakt","leveranstid","kontakt","status"];
 function renderEco() {
   if (state.kalkyl !== null) {
-    const rows = [...state.kalkyl].sort((a, b) => String(a.produkt).localeCompare(String(b.produkt), "sv") || ((a.status === "vald") ? -1 : 1));
-    const st = { vald: ["ok","Vald"], kandidat: ["info","Kandidat"], nej: ["wait","Nej"] };
+    const rows = [...state.kalkyl].filter(r => r.status !== "nej").sort((a, b) => String(a.produkt).localeCompare(String(b.produkt), "sv"));
     $("kalkyl").innerHTML = rows.length ? rows.map(r => {
-      const c = calc(r), s = st[r.status] || st.kandidat;
-      return `<tr>
-        <td><b>${esc(r.produkt)}</b> <span class="pill ${s[0]}">${s[1]}</span><small>${esc(r.leverantor)}${r.kanal ? " · " + esc(r.kanal) : ""}${r.lank ? ` · <a href="${esc(r.lank)}" target="_blank" rel="noopener">länk</a>` : ""}</small>${r.kalla ? `<small>Källa: ${esc(r.kalla)}</small>` : ""}</td>
-        <td class="num">${num(r.salj) != null ? kr(num(r.salj)) : '<span class="na">–</span>'}</td>
-        <td class="num">${num(r.inkop) != null ? kr(num(r.inkop)) : '<span class="na">saknas</span>'}</td>
-        <td class="num">${num(r.frakt) != null ? kr(num(r.frakt)) : '<span class="na">saknas</span>'}</td>
-        <td class="num">${num(r.ovrigt) != null ? kr(num(r.ovrigt)) : '<span class="na">0</span>'}</td>
-        <td class="num">${marginPill(c)}</td>
-        <td class="num">${r.leveranstid ? esc(r.leveranstid) + " d" : '<span class="na">saknas</span>'}</td>
-        <td>${r.kontakt ? esc(r.kontakt) : '<span class="na">saknas</span>'}</td>
-        <td><button class="ghost" data-kedit="${r.id}">Ändra</button><button class="ghost" data-kdel="${r.id}" aria-label="Ta bort ${esc(r.produkt)}">✕</button></td>
-      </tr>`; }).join("") : `<tr><td colspan="9" class="na">Inga rader än. Lägg till en produkt nedan eller kör ekonomiagenten.</td></tr>`;
+      const c = calc(r);
+      const tag = !c ? `<span class="tag muted">Inget pris</span>` : c.missing ? `<span class="tag muted">Inköp saknas</span>` : `<span class="tag ${c.pct >= 40 ? "ok" : c.pct >= 30 ? "warn" : "bad"}">${c.pct.toFixed(0)} %</span>`;
+      return `<div class="eco-row">
+        <span class="t"><span>${esc(r.produkt)}${r.status === "vald" ? " ✓" : ""}</span><small>${esc(r.leverantor)}${r.leveranstid ? " · " + esc(r.leveranstid) + " dagar" : ""}${r.kontakt ? " · " + esc(r.kontakt) : ""}</small></span>
+        <span class="num">${num(r.salj) != null ? kr(num(r.salj)) : "–"}<small>${c && !c.missing ? kr(c.m) + " kvar" : "&nbsp;"}</small></span>
+        <span style="display:flex;gap:6px;align-items:center">${tag}<button class="link" data-kedit="${r.id}">Ändra</button></span>
+      </div>`; }).join("") : `<div class="empty">Inga produkter än.</div>`;
   }
   if (state.fasta !== null) {
-    $("fasta").innerHTML = state.fasta.length ? state.fasta.map(f => `<div class="row"><span class="date">${num(f.belopp) != null ? kr(num(f.belopp)) : "okänt"}</span><span class="title">${esc(f.namn)}${f.notering ? `<small>${esc(f.notering)}</small>` : ""}</span><span class="row-side"><button class="ghost" data-fdel="${f.id}" aria-label="Ta bort ${esc(f.namn)}">✕</button></span></div>`).join("") : `<div class="empty">Inga fasta kostnader inlagda.</div>`;
+    $("fasta").innerHTML = state.fasta.length ? state.fasta.map(f => `<div class="eco-row"><span class="t"><span>${esc(f.namn)}</span>${f.notering ? `<small>${esc(f.notering)}</small>` : ""}</span><span class="num">${num(f.belopp) != null ? kr(num(f.belopp)) : '<span class="tag muted">Fyll i</span>'}</span><button class="link" data-fdel="${f.id}" aria-label="Ta bort ${esc(f.namn)}">Ta bort</button></div>`).join("") : `<div class="empty">Inga fasta kostnader.</div>`;
   }
-  const fixedKnown = (state.fasta || []).filter(f => num(f.belopp) != null);
-  const fixedUnknown = (state.fasta || []).length - fixedKnown.length;
-  const fixed = fixedKnown.reduce((s, f) => s + num(f.belopp), 0);
-  const calced = (state.kalkyl || []).filter(r => r.status !== "nej").map(calc).filter(c => c && !c.missing);
-  const pool = (state.kalkyl || []).filter(r => r.status === "vald").map(calc).filter(c => c && !c.missing);
-  const use = pool.length ? pool : calced;
+  const fixed = (state.fasta || []).reduce((s, f) => s + (num(f.belopp) ?? 0), 0);
+  const unknown = (state.fasta || []).some(f => num(f.belopp) == null);
+  const all = (state.kalkyl || []).filter(r => r.status !== "nej").map(calc).filter(c => c && !c.missing);
+  const chosen = (state.kalkyl || []).filter(r => r.status === "vald").map(calc).filter(c => c && !c.missing);
+  const use = chosen.length ? chosen : all;
   const avg = use.length ? use.reduce((s, c) => s + c.m, 0) / use.length : null;
-  const avgPct = use.length ? use.reduce((s, c) => s + c.pct, 0) / use.length : null;
-  $("e-fixed").textContent = state.fasta === null ? "–" : kr(fixed) + (fixedUnknown ? " +?" : "");
   $("e-avg").textContent = avg == null ? "–" : kr(avg);
-  $("e-be").textContent = avg && avg > 0 ? Math.ceil(fixed / avg) + (fixedUnknown ? "+" : "") : "–";
-  $("s-margin").textContent = avgPct == null ? "–" : avgPct.toFixed(0) + " %";
+  $("e-fixed").textContent = state.fasta === null ? "–" : (fixed || unknown ? kr(fixed) + (unknown ? "+" : "") : "0 kr");
+  $("e-be").textContent = avg && avg > 0 && fixed ? String(Math.ceil(fixed / avg)) : "–";
 }
-function ecoContext() {
-  const rows = (state.kalkyl || []).map(r => { const c = calc(r); return { produkt: r.produkt, leverantor: r.leverantor, kanal: r.kanal, status: r.status, salj_inkl_moms: num(r.salj), inkop_exkl_moms: num(r.inkop), frakt: num(r.frakt), ovrigt: num(r.ovrigt), leveranstid_dagar: r.leveranstid || null, kontakt: r.kontakt || null, kalla: r.kalla || null, marginal_kr: c && !c.missing ? Math.round(c.m) : null, marginal_procent: c && !c.missing ? Math.round(c.pct) : null }; });
-  const fasta = (state.fasta || []).map(f => ({ namn: f.namn, kr_per_manad: num(f.belopp), notering: f.notering || null }));
-  return `Kalkyl (JSON):\n${JSON.stringify(rows)}\nFasta kostnader (JSON):\n${JSON.stringify(fasta)}\nAntagen betalavgift: ${state.fee} %`;
-}
-
-let editing = null;
-const K_FIELDS = ["produkt","leverantor","kanal","status","salj","inkop","frakt","ovrigt","leveranstid","kontakt","lank","kalla"];
 function startEdit(id) {
   const r = state.kalkyl.find(x => x.id === id); if (!r) return;
-  editing = r;
-  K_FIELDS.forEach(f => { $("k-" + f).value = r[f] ?? (f === "status" ? "kandidat" : ""); });
-  $("k-details").open = true; $("k-summary").textContent = "Ändra " + r.produkt + " – " + r.leverantor;
-  $("k-cancel").hidden = false; $("k-produkt").focus();
+  editing = r; K.forEach(f => $("k-" + f).value = r[f] ?? (f === "status" ? "kandidat" : ""));
+  $("k-details").open = true; $("k-summary").textContent = "Ändra " + r.produkt; $("k-cancel").hidden = false; $("k-salj").focus();
 }
-function resetForm() { editing = null; $("k-form").reset(); $("k-summary").textContent = "Lägg till produkt eller leverantör"; $("k-cancel").hidden = true; }
-
-/* ---------- Agenter ---------- */
-function renderAgents() {
-  const typed = {}; document.querySelectorAll("#teams textarea").forEach(t => typed[t.id] = t.value);
-  const focused = document.activeElement && document.activeElement.id;
-  $("teams").innerHTML = TEAMS.map(t => `
-    <div class="team">
-      <div class="team-head"><h3 class="sub">${t.name}</h3><p>${t.desc}</p></div>
-      <div class="grid">${t.agents.map(a => {
-        const last = state.korningar.find(k => k.agent === a.file);
-        const lastHtml = last ? `Senast i bakgrunden ${fmtDate(last.startedAt)}${last.sessionId ? ` · <a href="${sessionUrl(last.sessionId)}" target="_blank" rel="noopener">öppna</a>` : ""}` : "";
-        return `
-        <article class="card agent">
-          <div class="agent-top">
-            <div><h4>${a.name}</h4><div class="file">.claude/agents/${a.file}.md</div></div>
-            <span class="pill ${a.status[0]}">${a.status[1]}</span>
-          </div>
-          <p class="does">${a.does}</p>
-          <dl class="rule"><dt>Får ej</dt><dd>${a.not}</dd></dl>
-          <div class="run">
-            <textarea id="in-${a.file}" rows="1" placeholder="${esc(a.ph)}" aria-label="Instruktion till ${a.name}"></textarea>
-            <div class="run-row">
-              ${a.quick ? `<button class="primary" type="button" data-quick="${a.file}" ${sample && !running[a.file] ? "" : "disabled"}>${running[a.file] ? "Arbetar …" : "Kör nu"}</button>` : ""}
-              <button class="${a.quick ? "" : "primary"}" type="button" data-run="${a.file}" ${mcp ? "" : "disabled"} title="${esc(mcp ? "Startar en egen session" : bgReason)}">Kör i bakgrunden</button>
-            </div>
-            ${lastHtml ? `<span class="last">${lastHtml}</span>` : ""}
-            <div class="msg" id="msg-${a.file}" aria-live="polite"></div>
-            ${output[a.file] ? `<div class="out" id="out-${a.file}">${esc(output[a.file])}</div>` : ""}
-          </div>
-        </article>`; }).join("")}
-      </div>
-    </div>`).join("");
-  Object.entries(typed).forEach(([id, v]) => { const el = $(id); if (el) el.value = v; });
-  if (focused && typed[focused] !== undefined) $(focused)?.focus();
-}
-
-async function runQuick(file) {
-  const a = AGENTS.find(x => x.file === file); if (!a || !sample) return;
-  const input = $("in-" + file).value.trim();
-  running[file] = true; output[file] = "Tänker …"; renderAgents();
-  const prompt = `${a.task}
-
-Fakta om butiken:
-${SHOP}
-${file === "ekonomiagent" || file === "optimeringsagent" ? "\n" + ecoContext() + "\n" : ""}
-Instruktion från ägaren: ${input || "(ingen extra instruktion – gör det mest användbara)"}
-
-Svara på svenska, tydligt och konkret, med korta rubriker och punktlistor (vanlig text, ingen tabellsyntax). Du kan inte söka på webben här: skriv "okänt" där fakta saknas och föreslå att köra i bakgrunden om webbsökning behövs.`;
-  try {
-    const res = await sample(prompt, { cache: false, onText: ({ text }) => { output[file] = text; const el = $("out-" + file); if (el) el.textContent = text; } });
-    output[file] = res.text;
-    if (db) {
-      try { await db.collection("rapporter").add({ title: a.name + " – " + (input ? input.slice(0, 60) : "körning"), agent: file, date: today(), summary: "Körd direkt i Kontrollrummet", content: res.text, createdAt: new Date().toISOString() }); } catch {}
-    }
-    $("in-" + file).value = "";
-  } catch (e) {
-    output[file] = "";
-    const m = $("msg-" + file);
-    const text = e && e.code === "not_granted" ? "Sidan behöver tillåtelse att fråga Claude. Öppna sidans behörigheter och tillåt, eller tryck Kör nu igen." : e && e.code === "rate_limited" ? "För många körningar just nu. Vänta en minut." : "Det gick inte att köra just nu (" + esc(e && e.code || "okänt fel") + ").";
-    running[file] = false; renderAgents(); const mm = $("msg-" + file); if (mm) { mm.className = "msg err"; mm.textContent = text; } return;
-  }
-  running[file] = false; renderAgents();
-  const mm = $("msg-" + file); if (mm) { mm.className = "msg ok"; mm.textContent = "Klar – sparad under Rapporter."; }
-}
-
-function extractSessionId(res) {
-  const p = res && (res.payload ?? res);
-  if (p && typeof p === "object") {
-    const id = p.session_id || p.id || (p.session && (p.session.id || p.session.session_id));
-    if (typeof id === "string") return id;
-  }
-  const m = JSON.stringify(p ?? "").match(/session_[A-Za-z0-9]+/);
-  return m ? m[0] : "";
-}
-function runError(e) {
-  switch (e && e.code) {
-    case "needs_reauth": return "Kopplingen Claude Code Remote har gått ut. Anslut den igen under Inställningar → Connectors.";
-    case "server_not_connected": case "selection_required": return "Kopplingen Claude Code Remote finns inte i ditt konto. Lägg till den under Inställningar → Connectors.";
-    case "not_in_manifest": case "approval_required": case "consent_required": return "Sidan fick inte tillåtelse att starta sessioner. Tryck igen och välj Tillåt.";
-    case "blocked_by_policy": return "Din organisation tillåter inte att sidan startar sessioner.";
-    case "tool_error": return "Sessionen kunde inte startas: " + (e.message || "okänt fel");
-    case "server_unavailable": case "upstream_error": return "Oklart om sessionen startade. Titta på claude.ai/code innan du försöker igen.";
-    default: return "Något gick fel (" + (e && e.code || "okänt") + ").";
-  }
-}
-async function runBackground(file, btn) {
-  const a = AGENTS.find(x => x.file === file);
-  const input = $("in-" + file).value.trim();
-  const msg = $("msg-" + file);
-  btn.disabled = true; btn.textContent = "Startar …"; msg.className = "msg"; msg.textContent = "";
-  const prompt = `Jarvis: kör agenten ${file} (.claude/agents/${file}.md) enligt CLAUDE.md.` + (input ? `\n\nInstruktion från ägaren:\n${input}` : "") + `\n\nSpara resultatet i rapporter/, lägg till raden i Kontrollrummet och pusha till main. Svara på svenska.`;
-  try {
-    const res = await mcp.callTool(SRV, "create_session", { prompt, title: "Jarvis · " + a.name, source_url: REPO, environment_id: ENV, outcome_branch: "main" }, { cache: false });
-    const id = extractSessionId(res);
-    msg.className = "msg ok";
-    msg.innerHTML = "Startad! Agenten arbetar nu." + (id ? ` <a href="${sessionUrl(id)}" target="_blank" rel="noopener">Följ sessionen</a>` : " Du hittar den på claude.ai/code.");
-    $("in-" + file).value = "";
-    if (db) { try { await db.collection("korningar").add({ agent: file, name: a.name, sessionId: id, input, startedAt: new Date().toISOString() }); } catch {} }
-  } catch (e) {
-    msg.className = "msg err"; msg.textContent = runError(e);
-  } finally { btn.disabled = false; btn.textContent = "Kör i bakgrunden"; }
-}
-
-/* ---------- Förslag ---------- */
-function renderProps() {
-  const box = $("props"); if (state.forslag === null) return;
-  const open = state.forslag.filter(f => f.status === "ny");
-  const decided = state.forslag.filter(f => f.status !== "ny").slice(0, 3);
-  $("s-props").textContent = open.length;
-  if (!open.length && !decided.length) { box.innerHTML = `<div class="card empty">Inga förslag än. Optimeringsagenten lämnar förslag varje morgon, eller tryck Kör nu på den nedan.</div>`; return; }
-  const label = { godkand: ["ok","Godkänd"], avvisad: ["wait","Avvisad"], genomford: ["ok","Genomförd"] };
-  box.innerHTML = open.map(f => `
-    <article class="card prop">
-      <div class="prop-top"><h4>${esc(f.title)}</h4><span class="pill info">${f.kind === "annons" ? "Annons" : "Produktsida"}${f.product ? " · " + esc(f.product) : ""}</span></div>
-      <div class="ba"><div><small>Nu</small>${esc(f.before || "–")}</div><div><small>Förslag</small>${esc(f.after)}</div></div>
-      ${f.why ? `<p class="why">${esc(f.why)}</p>` : ""}
-      <div class="actions"><button class="primary" data-approve="${f.id}">Godkänn</button><button data-reject="${f.id}">Avvisa</button></div>
-    </article>`).join("") +
-    (decided.length ? `<div class="card">${decided.map(f => { const l = label[f.status] || ["wait", esc(f.status)]; return `<div class="row"><span class="pill ${l[0]}">${l[1]}</span><span class="title">${esc(f.title)}</span><span></span></div>`; }).join("")}</div>` : "");
-}
-
-/* ---------- Att göra ---------- */
-const PRIO = { viktigt: ["warn","Viktigt"], snabbt: ["info","Snabbt"], sen: ["wait","Sen"] };
-const helpText = {};
-function renderTodos() {
-  const box = $("todos"); if (state.todos === null) return;
-  const order = { viktigt: 0, snabbt: 1, sen: 2 };
-  const list = [...state.todos].sort((a, b) => (a.done - b.done) || (order[a.prio] ?? 3) - (order[b.prio] ?? 3) || String(a.createdAt).localeCompare(String(b.createdAt)));
-  $("s-todos").textContent = state.todos.filter(t => !t.done).length;
-  if (!list.length) { box.innerHTML = `<div class="empty">Listan är tom. Lägg till din första uppgift nedan.</div>`; return; }
-  box.innerHTML = list.map(t => { const p = PRIO[t.prio] || PRIO.sen; return `<div class="row ${t.done ? "done" : ""}">
-      <input type="checkbox" id="chk-${t.id}" data-toggle="${t.id}" ${t.done ? "checked" : ""} aria-label="Klar: ${esc(t.text)}">
-      <label class="title" for="chk-${t.id}"><span>${esc(t.text)}</span>${t.note ? `<small>${esc(t.note)}</small>` : ""}</label>
-      <span class="row-side"><span class="pill ${p[0]}">${p[1]}</span>${sample && !t.done ? `<button class="ghost" data-help="${t.id}">Hjälp</button>` : ""}<button class="ghost" data-del="${t.id}" aria-label="Ta bort ${esc(t.text)}">✕</button></span>
-      ${helpText[t.id] ? `<div class="help" id="help-${t.id}">${esc(helpText[t.id])}</div>` : ""}
-    </div>`; }).join("");
-}
-async function helpWith(id) {
-  const t = state.todos.find(x => x.id === id); if (!t || !sample) return;
-  helpText[id] = "Tänker …"; renderTodos();
-  const prompt = `Du hjälper en nybörjare som driver webbutiken SnöTass (vinterprodukter för hundar och katter, Shopify, Sverige). Uppgift: "${t.text}". ${t.note ? "Mer info: " + t.note + "." : ""}
-Ge en kort, konkret steg-för-steg-guide på svenska: högst 6 numrerade steg, enkla ord, ingen inledning. Avsluta med en rad "Tid: ca X min".`;
-  try { await sample(prompt, { onText: ({ text }) => { helpText[id] = text; const el = $("help-" + id); if (el) el.textContent = text; else renderTodos(); } }); }
-  catch (e) { helpText[id] = e && e.code === "not_granted" ? "Hjälpen kräver ditt tillstånd. Tryck Hjälp igen och välj Tillåt." : e && e.code === "rate_limited" ? "För många frågor just nu. Vänta en minut." : "Kunde inte hämta hjälp just nu."; renderTodos(); }
-}
+function resetForm() { editing = null; $("k-form").reset(); $("k-summary").textContent = "+ Lägg till produkt"; $("k-cancel").hidden = true; $("k-details").open = false; }
 
 /* ---------- Rapporter ---------- */
 function renderReports() {
-  const box = $("reports"); if (state.rapporter === null) return;
-  $("s-reports").textContent = state.rapporter.length;
-  if (!state.rapporter.length) { box.innerHTML = `<div class="empty">Inga rapporter än.</div>`; return; }
-  const list = [...state.rapporter].sort((a, b) => String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date))).slice(0, 10);
-  box.innerHTML = list.map(r => `<div class="row"><span class="date">${esc(r.date)}</span><span class="title">${r.path ? `<a href="${REPO}/blob/main/${esc(r.path)}" target="_blank" rel="noopener">${esc(r.title)}</a>` : esc(r.title)}<small>${esc(r.summary || r.agent || "")}</small></span><span></span>
-    ${r.content ? `<div class="report-body"><details class="rep"><summary>Visa rapporten</summary><div class="out">${esc(r.content)}</div></details></div>` : ""}</div>`).join("");
+  if (state.rapporter === null) return;
+  const list = [...state.rapporter].sort((a, b) => String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date)));
+  $("reports").innerHTML = list.length ? list.map(r => `<details class="rep">
+      <summary><span>${esc(r.title)}${r.summary ? `<small>${esc(r.summary)}</small>` : ""}</span><span class="date">${esc(r.date)}</span></summary>
+      <div class="rep-body">${r.content ? `<div class="out">${esc(r.content)}</div>` : r.path ? `<a href="${REPO}/blob/main/${esc(r.path)}" target="_blank" rel="noopener">Öppna rapporten</a>` : ""}</div>
+    </details>`).join("") : `<div class="empty">Inga rapporter än. Kör en agent så hamnar svaret här.</div>`;
 }
 
 /* ---------- Händelser ---------- */
 document.addEventListener("click", e => {
   const b = e.target.closest("button"); if (!b) return;
-  if (b.dataset.quick) runQuick(b.dataset.quick);
-  else if (b.dataset.run && mcp) runBackground(b.dataset.run, b);
-  else if (b.dataset.approve && db) { b.disabled = true; db.doc("forslag/" + b.dataset.approve).update({ status: "godkand", decidedAt: new Date().toISOString() }).catch(() => b.disabled = false); }
-  else if (b.dataset.reject && db) { b.disabled = true; db.doc("forslag/" + b.dataset.reject).update({ status: "avvisad", decidedAt: new Date().toISOString() }).catch(() => b.disabled = false); }
-  else if (b.dataset.help) helpWith(b.dataset.help);
-  else if (b.dataset.del && db) db.doc("todos/" + b.dataset.del).delete().catch(() => {});
-  else if (b.dataset.kedit) startEdit(b.dataset.kedit);
-  else if (b.dataset.kdel && db) db.doc("kalkyl/" + b.dataset.kdel).delete().catch(() => {});
-  else if (b.dataset.fdel && db) db.doc("fasta/" + b.dataset.fdel).delete().catch(() => {});
+  const d = b.dataset;
+  if (d.run) runAgent(d.run, b);
+  else if (d.help) helpWith(d.help);
+  else if (d.done && db) db.doc("todos/" + d.done).update({ done: true }).catch(() => {});
+  else if (d.del && db) db.doc("todos/" + d.del).delete().catch(() => {});
+  else if (d.approve && db) { b.disabled = true; db.doc("forslag/" + d.approve).update({ status: "godkand", decidedAt: new Date().toISOString() }).catch(() => b.disabled = false); }
+  else if (d.reject && db) { b.disabled = true; db.doc("forslag/" + d.reject).update({ status: "avvisad", decidedAt: new Date().toISOString() }).catch(() => b.disabled = false); }
+  else if (d.kedit) startEdit(d.kedit);
+  else if (d.fdel && db) db.doc("fasta/" + d.fdel).delete().catch(() => {});
   else if (b.id === "k-cancel") resetForm();
 });
 document.addEventListener("change", e => {
   const id = e.target.dataset && e.target.dataset.toggle;
   if (id && db) db.doc("todos/" + id).update({ done: e.target.checked }).catch(() => { e.target.checked = !e.target.checked; });
 });
-$("add-todo").addEventListener("submit", async e => {
+document.addEventListener("submit", async e => {
   e.preventDefault();
-  const text = $("todo-text").value.trim(); if (!text || !db) return;
-  $("todo-text").value = "";
-  try { await db.collection("todos").add({ text, note: "", prio: $("todo-prio").value, done: false, createdAt: new Date().toISOString() }); } catch { $("todo-text").value = text; }
-});
-$("k-form").addEventListener("submit", async e => {
-  e.preventDefault(); if (!db) return;
-  const data = {};
-  K_FIELDS.forEach(f => { const v = $("k-" + f).value.trim(); data[f] = ["salj","inkop","frakt","ovrigt"].includes(f) ? num(v) : v; });
-  data.uppdaterad = today();
-  $("k-save").disabled = true;
-  try {
-    if (editing) await db.doc("kalkyl/" + editing.id).update(data); else await db.collection("kalkyl").add(data);
-    resetForm(); $("k-msg").className = "msg ok"; $("k-msg").textContent = "Sparat.";
-  } catch { $("k-msg").className = "msg err"; $("k-msg").textContent = "Kunde inte spara. Försök igen."; }
-  finally { $("k-save").disabled = false; setTimeout(() => $("k-msg").textContent = "", 2500); }
-});
-$("f-form").addEventListener("submit", async e => {
-  e.preventDefault(); if (!db) return;
-  const namn = $("f-namn").value.trim(); if (!namn) return;
-  const belopp = num($("f-belopp").value);
-  $("f-namn").value = ""; $("f-belopp").value = "";
-  try { await db.collection("fasta").add({ namn, belopp, notering: "" }); } catch { $("f-namn").value = namn; }
+  if (!db) return;
+  if (e.target.id === "add-todo") {
+    const text = $("todo-text").value.trim(); if (!text) return;
+    try { await db.collection("todos").add({ text, note: "", prio: "sen", done: false, createdAt: new Date().toISOString() }); } catch {}
+  } else if (e.target.id === "k-form") {
+    const data = {}; K.forEach(f => { const v = $("k-" + f).value.trim(); data[f] = ["salj","inkop","frakt"].includes(f) ? num(v) : v; }); data.uppdaterad = today();
+    $("k-save").disabled = true;
+    try { if (editing) await db.doc("kalkyl/" + editing.id).update(data); else await db.collection("kalkyl").add(data); resetForm(); }
+    catch { $("k-msg").className = "msg err"; $("k-msg").textContent = "Kunde inte spara."; }
+    finally { $("k-save").disabled = false; }
+  } else if (e.target.id === "f-form") {
+    const namn = $("f-namn").value.trim(); if (!namn) return; const belopp = num($("f-belopp").value);
+    $("f-namn").value = ""; $("f-belopp").value = "";
+    try { await db.collection("fasta").add({ namn, belopp, notering: "" }); } catch { $("f-namn").value = namn; }
+  }
 });
 let feeTimer = null;
-$("fee").addEventListener("input", e => {
-  const v = num(e.target.value); if (v == null) return;
-  state.fee = v; renderEco();
-  clearTimeout(feeTimer);
-  feeTimer = setTimeout(() => { if (db) db.doc("installningar/ekonomi").set({ betalavgift: v }).catch(() => {}); }, 800);
-});
+$("fee").addEventListener("input", e => { const v = num(e.target.value); if (v == null) return; state.fee = v; renderEco(); clearTimeout(feeTimer); feeTimer = setTimeout(() => db && db.doc("installningar/ekonomi").set({ betalavgift: v }).catch(() => {}), 800); });
 
 /* ---------- Start ---------- */
-renderAgents();
-function bgNotice(html) { const n = $("bg-status"); n.innerHTML = html; n.hidden = !html; }
-
+greet(); renderAgents();
 (async () => {
   db = await window.claude?.use?.("db") ?? null;
   if (!db) {
-    ["props","todos","reports","fasta"].forEach(id => $(id).innerHTML = `<div class="empty">Logga in på claude.ai för att se den här delen.</div>`);
-    $("kalkyl").innerHTML = `<tr><td colspan="9" class="na">Logga in på claude.ai för att se kalkylen.</td></tr>`;
-    const n = $("cap-notice"); n.textContent = "Kontrollrummets data visas bara när du är inloggad och öppnar sidan på claude.ai."; n.hidden = false;
+    ["next","later","kalkyl","fasta","reports"].forEach(id => $(id).innerHTML = `<div class="empty">Öppna sidan på claude.ai och logga in för att se det här.</div>`);
     return;
   }
-  const timer = setTimeout(() => { if (state.todos === null) $("todos").innerHTML = `<div class="empty">Det tar längre tid än vanligt att hämta listan.</div>`; }, 10000);
-  const sub = (name, after, errTarget) => db.collection(name).onSnapshot(s => { clearTimeout(timer); state[name] = s.docs.map(d => ({ id: d.id, ...d.data() })); after(); },
-    () => { if (errTarget) $(errTarget).innerHTML = `<div class="empty">Kunde inte läsa datan.</div>`; });
-  sub("todos", renderTodos, "todos");
-  sub("forslag", renderProps, "props");
-  sub("rapporter", renderReports, "reports");
-  sub("kalkyl", renderEco, null);
-  sub("fasta", renderEco, "fasta");
-  db.collection("korningar").onSnapshot(s => { state.korningar = s.docs.map(d => d.data()).sort((a, b) => String(b.startedAt).localeCompare(String(a.startedAt))); renderAgents(); }, () => {});
+  const t = setTimeout(() => { if (state.todos === null) $("next").innerHTML = `<div class="empty">Det tar längre tid än vanligt …</div>`; }, 10000);
+  const sub = (name, fn) => db.collection(name).onSnapshot(s => { clearTimeout(t); state[name] = s.docs.map(d => ({ id: d.id, ...d.data() })); fn(); }, () => {});
+  sub("todos", renderToday); sub("forslag", renderProps); sub("rapporter", renderReports); sub("kalkyl", renderEco); sub("fasta", renderEco);
   db.doc("installningar/ekonomi").onSnapshot(d => { const v = d.exists && num(d.data().betalavgift); if (v != null && document.activeElement !== $("fee")) { state.fee = v; $("fee").value = v; renderEco(); } }, () => {});
 })();
-
+(async () => { sample = await window.claude?.use?.("sample") ?? null; renderAgents(); renderToday(); })();
 (async () => {
   mcp = await window.claude?.use?.("mcp") ?? null;
-  if (!mcp) {
-    bgReason = "Bakgrundskörning är inte tillgänglig i den här vyn.";
-    bgNotice(`<b>Kör i bakgrunden är avstängt här.</b> Den här vyn (ofta mobilappen eller sidan utanför claude.ai) kan inte starta sessioner. Använd <b>Kör nu</b>, eller öppna Kontrollrummet i webbläsaren på claude.ai.`);
-  } else {
-    try {
-      const { servers } = await mcp.listTools(SRV);
-      const s = servers.find(x => x.server === SRV);
-      if (!s) { bgReason = "Kopplingen Claude Code Remote saknas."; bgNotice(`<b>Kör i bakgrunden kräver kopplingen Claude Code Remote.</b> Lägg till den under Inställningar → Connectors på claude.ai. Under tiden fungerar <b>Kör nu</b>.`); }
-      else if (s.authStatus === "needs_reauth") bgNotice(`<b>Kopplingen Claude Code Remote behöver anslutas igen</b> under Inställningar → Connectors.`);
-      else if (s.tools.length && !s.tools.some(t => t.name === "create_session")) { mcp = null; bgReason = "Din koppling saknar verktyget för att starta sessioner."; bgNotice(`<b>Kör i bakgrunden är inte tillgängligt</b> för ditt konto ännu. Använd <b>Kör nu</b>.`); }
-      else bgNotice("");
-    } catch (e) { bgNotice(`<b>Kunde inte kontrollera bakgrundskörning</b> (${esc(e && e.code || "okänt")}). Du kan ändå prova knappen.`); }
-  }
+  if (mcp) { try { const { servers } = await mcp.listTools(SRV); const s = servers.find(x => x.server === SRV); bgOk = !!s && (!s.tools.length || s.tools.some(x => x.name === "create_session")); } catch { bgOk = true; } }
   renderAgents();
-})();
-
-(async () => {
-  sample = await window.claude?.use?.("sample") ?? null;
-  if (!sample) { const n = $("cap-notice"); n.textContent = "Kör nu och Hjälp fungerar bara när sidan är öppen på claude.ai."; n.hidden = false; }
-  renderAgents(); renderTodos();
 })();
 </script>
