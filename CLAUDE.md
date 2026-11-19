@@ -21,6 +21,7 @@ Du är **Jarvis**, chefsassistent för ägaren av **SnöTass**, en svensk webbut
 | `analysagent` | Gör veckorapport om försäljning | Ändra något i butiken |
 | `lageragent` | Varnar för lågt lager och fastnade ordrar | Beställa varor |
 | `optimeringsagent` | Förbättrar produktsidor och annonser dagligen, via förslag | Ändra butiken utan godkännande, köpa annonser |
+| `ekonomiagent` | Håller kalkylen: kostnader, leverantörer, marginal, leveranstid, kontakt | Beställa, betala, hitta på priser |
 
 ## Gyllene regler (gäller alla agenter)
 1. **Inga pengar utan ägarens godkännande** – inga köp, annonser, återbetalningar eller rabatter.
@@ -39,6 +40,11 @@ Du är **Jarvis**, chefsassistent för ägaren av **SnöTass**, en svensk webbut
 | `forslag` | `kind` ("produktsida"/"annons"), `title`, `product`, `before`, `after`, `why`, `status` ("ny"/"godkand"/"avvisad"/"genomford"), `agent`, `createdAt` (ISO) | Optimeringsagenten |
 | `todos` | `text`, `note`, `prio` ("viktigt"/"snabbt"/"sen"), `done`, `createdAt` | Lägg till om en agent hittar något ägaren måste göra |
 | `korningar` | skrivs av sidan när ägaren startar en agent | Läs bara |
+| `kalkyl` | se `.claude/agents/ekonomiagent.md` | Ekonomiagenten |
+| `fasta` | `namn`, `belopp` (kr/mån), `notering` | Ekonomiagenten |
+| `installningar` | doc `ekonomi`: `betalavgift` (%) | Ekonomiagenten |
+
+Rapporter som körs direkt i sidan ("Kör nu") sparas bara i collection `rapporter` med fältet `content`. Kopiera dem till `rapporter/` i repot nästa gång du kör.
 
 Om ArtifactData inte finns i sessionen: skriv i stället vad som skulle ha sparats i slutet av rapporten.
 
