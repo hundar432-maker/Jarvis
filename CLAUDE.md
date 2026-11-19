@@ -28,6 +28,10 @@ Du är **Jarvis**, chefsassistent för ägaren av **SnöTass**, en svensk webbut
 4. **Följ svensk lag** – ångerrätt 14 dagar, konsumentköplagen, CE-märkning, korrekt marknadsföring.
 5. **Undvik riskprodukter** – elektronik utan CE, leksaker för små barn, kosmetika/läkemedel för djur med påståenden om hälsoeffekter.
 
+## Kontrollrummet (dashboard)
+- `dashboard/index.html` är ägarens översikt, publicerad på https://claude.ai/artifact/SZFTBH88Doa99PzS5TukzN
+- Efter varje ny rapport, ny agent eller ändrad status: uppdatera sidan (agentstatus, rapportlistan, att-göra, siffrorna överst och datumet i sidfoten) och publicera om den till samma adress.
+
 ## Viktiga filer
 - `kunskap/butiken.md` – fakta om SnöTass
 - `kunskap/leverantorer.md` – kända leverantörer

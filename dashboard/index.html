@@ -1,0 +1,198 @@
+<title>Jarvis Kontrollrum</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: kontrollrum – sammanfattning överst, agenter grupperade per team, sedan rapporter och att-göra i två kolumner */
+:root {
+  --bg: #F6F9FC;
+  --panel: #FFFFFF;
+  --line: #D9E3EE;
+  --fg: #0F2233;
+  --muted: #5A6B7D;
+  --accent: #2E6A9E;
+  --accent-soft: #E3ECF5;
+  --ok: #2F7D5B; --ok-bg: #E2F2EA;
+  --warn: #9A6400; --warn-bg: #FBF0D9;
+  --wait: #5A6B7D; --wait-bg: #EAEFF4;
+  --f-display: "DM Serif Display", Georgia, serif;
+  --f-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0B1722; --panel: #112231; --line: #1F3447; --fg: #E6EEF6; --muted: #93A6B8;
+  --accent: #7FB2DE; --accent-soft: #17304A;
+  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0B1722; --panel: #112231; --line: #1F3447; --fg: #E6EEF6; --muted: #93A6B8;
+  --accent: #7FB2DE; --accent-soft: #17304A;
+  --ok: #7FD1A8; --ok-bg: #12372A; --warn: #F0C46A; --warn-bg: #3A2C0E; --wait: #A9B8C7; --wait-bg: #1A2B3B;
+  color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 40px; }
+
+header { display: grid; gap: 6px; }
+.kicker { font-family: var(--f-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--f-display); font-weight: 400; font-size: clamp(34px, 6vw, 52px); line-height: 1.05; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 62ch; margin: 4px 0 0; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.stat { padding: 16px 18px; display: grid; gap: 2px; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat b { font-family: var(--f-display); font-weight: 400; font-size: 34px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 13px; }
+
+h2 { font-family: var(--f-display); font-weight: 400; font-size: 26px; margin: 0; }
+.section { display: grid; gap: 16px; }
+.team { display: grid; gap: 12px; }
+.team-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.team-head h3 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.team-head p { margin: 0; color: var(--muted); font-size: 13px; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+
+.agent { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.agent-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.agent h4 { margin: 0; font-size: 17px; font-weight: 600; }
+.agent .file { font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); }
+.does { margin: 0; }
+.rules { display: grid; gap: 6px; font-size: 13.5px; }
+.rule { display: grid; grid-template-columns: 52px 1fr; gap: 8px; }
+.rule dt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.rule dd { margin: 0; }
+.meta { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; }
+.cmd { display: flex; gap: 6px; align-items: center; min-width: 0; }
+.cmd code { flex: 1; min-width: 0; font-family: var(--f-mono); font-size: 12px; background: var(--accent-soft); color: var(--fg); padding: 7px 9px; border-radius: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+button.copy { font: 500 12px var(--f-body); color: var(--accent); background: transparent; border: 1px solid var(--line); border-radius: 7px; padding: 6px 10px; cursor: pointer; white-space: nowrap; }
+button.copy:hover { border-color: var(--accent); }
+button.copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.pill { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.pill.ok { color: var(--ok); background: var(--ok-bg); }
+.pill.warn { color: var(--warn); background: var(--warn-bg); }
+.pill.wait { color: var(--wait); background: var(--wait-bg); }
+
+.two { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: 24px; align-items: start; }
+.list { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.row { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 13px 16px; }
+.row + .row { border-top: 1px solid var(--line); }
+.row .date { font-family: var(--f-mono); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.row .title { min-width: 0; }
+.row .title small { display: block; color: var(--muted); font-size: 12.5px; }
+.check { width: 16px; height: 16px; border: 1.5px solid var(--muted); border-radius: 4px; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; padding: 16px; margin: 0; font-size: 14px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+.missing { color: var(--warn); font-weight: 500; }
+footer { color: var(--muted); font-size: 12.5px; }
+footer code { font-family: var(--f-mono); }
+
+@media (max-width: 860px) { .grid { grid-template-columns: repeat(2, minmax(0,1fr)); } .two { grid-template-columns: minmax(0,1fr); } }
+@media (max-width: 560px) {
+  .grid { grid-template-columns: minmax(0,1fr); }
+  .stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .stat:nth-child(3) { border-left: 0; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="kicker">Jarvis · SnöTass</div>
+    <h1>Kontrollrummet</h1>
+    <p class="lede">Alla agenter i SnöTass AI-team, vad de gör, vad de inte får göra och vad som behövs härnäst. Kopiera ett kommando och klistra in det i en Claude Code-session med repot <b>jarvis</b>.</p>
+  </header>
+
+  <div class="stats" aria-label="Sammanfattning">
+    <div class="stat"><b>8</b><span>agenter i teamet</span></div>
+    <div class="stat"><b>5</b><span>redo att köras</span></div>
+    <div class="stat"><b>1</b><span>rapport sparad</span></div>
+    <div class="stat"><b>5</b><span>saker att göra</span></div>
+  </div>
+
+  <section class="section" aria-labelledby="h-agents">
+    <h2 id="h-agents">Agenterna</h2>
+    <div id="teams"></div>
+  </section>
+
+  <div class="two">
+    <section class="section" aria-labelledby="h-todo">
+      <h2 id="h-todo">Att göra</h2>
+      <div class="list">
+        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Spara SnöTass på ditt Shopify-konto<small>Annars kan butiken försvinna</small></span><span class="pill warn">Viktigt</span></div>
+        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Fyll i leveranstid, frakt och kontaktmejl<small>kunskap/butiken.md – kundtjänst behöver det</small></span><span class="pill warn">Viktigt</span></div>
+        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Kontrollera att repot jarvis är privat<small>GitHub → repot → Settings</small></span><span class="pill wait">Snabbt</span></div>
+        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Installera Shopify Collective<small>För att hämta in riktiga produkter</small></span><span class="pill wait">Sen</span></div>
+        <div class="row"><span class="check" aria-hidden="true"></span><span class="title">Beställ varuprov på en bädd<small>Innan den säljs</small></span><span class="pill wait">Sen</span></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="h-reports">
+      <h2 id="h-reports">Rapporter</h2>
+      <div class="list">
+        <div class="row"><span class="date">2026-11-18</span><span class="title">Trendrapport – husdjur vinter<small>Trendspanaren · rapporter/2026-11-18-trender.md</small></span><span class="pill ok">Klar</span></div>
+      </div>
+      <h2 id="h-shop">Butiken</h2>
+      <div class="list">
+        <dl class="facts">
+          <dt>Namn</dt><dd>SnöTass</dd>
+          <dt>Nisch</dt><dd>Vinterprodukter för hund och katt</dd>
+          <dt>Produkter</dt><dd>3 (tassvax, vinterkoja, hundtäcke)</dd>
+          <dt>Domän</dt><dd>snowtass.com – ej köpt</dd>
+          <dt>Leverantörer</dt><dd>5 kandidater, 0 godkända</dd>
+          <dt>Villkor</dt><dd class="missing">Saknas – fyll i</dd>
+        </dl>
+      </div>
+    </section>
+  </div>
+
+  <footer>Uppdaterad 2026-11-19. Sidan uppdateras inte av sig själv – be Jarvis "uppdatera kontrollrummet" efter nya rapporter. Källa: <code>hundar432-maker/jarvis</code></footer>
+</div>
+
+<script>
+const teams = [
+  { name: "Inköp", desc: "Hittar produkter och leverantörer", agents: [
+    { name: "Trendspanaren", file: "trendspanare", status: ["ok","Redo"], does: "Hittar trendande husdjursprodukter och betygsätter dem 1–10.", not: "Köpa något eller kontakta någon.", last: "Senast körd 2026-11-18", cmd: "Jarvis, kör trendspanaren" },
+    { name: "Leverantörsjämföraren", file: "leverantorsjamforare", status: ["ok","Redo"], does: "Jämför leverantörer och räknar ut den verkliga totalkostnaden.", not: "Beställa varor.", last: "Inte körd än", cmd: "Jarvis, jämför leverantörer för hundtäcken" },
+    { name: "Kontaktagenten", file: "kontaktagent", status: ["ok","Redo"], does: "Skriver mejlutkast till leverantörer: prov, priser, påminnelser.", not: "Skicka mejl själv.", last: "Inte körd än", cmd: "Jarvis, skriv mejl till leverantörerna" }
+  ]},
+  { name: "Butik", desc: "Möter kunderna", agents: [
+    { name: "Produktagenten", file: "produktagent", status: ["ok","Redo"], does: "Skriver produkttexter, titlar och SEO.", not: "Publicera utan ditt godkännande.", last: "Inte körd än", cmd: "Jarvis, skriv en produkttext för tassvaxet" },
+    { name: "Kundtjänst", file: "kundtjanst", status: ["warn","Behöver info"], does: "Skriver svarsutkast på kundmejl.", not: "Lova återbetalning eller rabatt.", last: "Väntar på leveransvillkor i butiken.md", cmd: "Jarvis, svara på det här kundmejlet: " },
+    { name: "Marknadsagenten", file: "marknadsagent", status: ["ok","Redo"], does: "Gör veckoplan för sociala medier och nyhetsbrev.", not: "Köpa annonser eller publicera.", last: "Inte körd än", cmd: "Jarvis, gör veckans innehållsplan" }
+  ]},
+  { name: "Drift", desc: "Håller koll på siffrorna", agents: [
+    { name: "Analysagenten", file: "analysagent", status: ["wait","Väntar på butik"], does: "Gör en veckorapport om försäljning och bästsäljare.", not: "Ändra något i butiken.", last: "Behöver riktiga försäljningar först", cmd: "Jarvis, gör veckorapporten" },
+    { name: "Lageragenten", file: "lageragent", status: ["wait","Väntar på butik"], does: "Varnar för lågt lager och ordrar som fastnat.", not: "Beställa varor.", last: "Behöver sparad butik och lager", cmd: "Jarvis, kolla lager och ordrar" }
+  ]}
+];
+
+const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+document.getElementById("teams").innerHTML = teams.map(t => `
+  <div class="team">
+    <div class="team-head"><h3>${t.name}</h3><p>${t.desc}</p></div>
+    <div class="grid">${t.agents.map(a => `
+      <article class="agent">
+        <div class="agent-top">
+          <div><h4>${a.name}</h4><div class="file">.claude/agents/${a.file}.md</div></div>
+          <span class="pill ${a.status[0]}">${a.status[1]}</span>
+        </div>
+        <p class="does">${a.does}</p>
+        <dl class="rules"><div class="rule"><dt>Får ej</dt><dd>${a.not}</dd></div></dl>
+        <div class="cmd"><code title="${esc(a.cmd)}">${esc(a.cmd)}</code><button class="copy" type="button" data-cmd="${esc(a.cmd)}">Kopiera</button></div>
+        <div class="meta">${a.last}</div>
+      </article>`).join("")}
+    </div>
+  </div>`).join("");
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("button.copy"); if (!b) return;
+  const text = b.dataset.cmd;
+  const done = () => { b.textContent = "Kopierad"; setTimeout(() => b.textContent = "Kopiera", 1600); };
+  const fallback = () => { const code = b.previousElementSibling; const r = document.createRange(); r.selectNodeContents(code); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Markerad – kopiera"; };
+  try { navigator.clipboard.writeText(text).then(done, fallback); } catch (err) { fallback(); }
+});
+</script>
